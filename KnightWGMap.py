@@ -97,6 +97,8 @@ class KnightWGMap(SquareGridWGMap):
     
     allTerritories = self.getTerritoryIDsFromNameRegex(".*")    
     self.addChainContinents(allTerritories)
+    
+    
 
     #print "td1",territoriesDeleted
     # find all territories with only one border & no continents - then delete them.
@@ -114,6 +116,75 @@ class KnightWGMap(SquareGridWGMap):
     self.saveMapToFile(filePath + ".xml")
 
 
+    return True
+ 
+  def createStringGame(self,filePath,knightString,rowHeight=40,colWidth=40):
+    
+    '''Be sure to set the board name by hand'''
+    self.rows = knightString.count("\n")
+    self.cols = knightString.find("\n")
+
+      
+      
+    
+    
+    xOrigin = colWidth/2
+    yOrigin = rowHeight/2
+    
+    #print "Creating Function Knight's Tour:",filePath,rows,cols,rowHeight,colWidth,xOrigin,yOrigin
+    print "Knight's Tour (" + str(self.rows) + "x" + str(self.cols) + ")"#+str(placeKnightFunc)
+    
+    self.deleteAllBorders()
+    self.deleteAllTerritories()
+    self.deleteAllContinents()
+
+    #self.setBoardName("Knight's Tour (" + str(rows) + "x" + str(cols) + ")")
+    
+    self.createTerritories(xOrigin, yOrigin, rowHeight, colWidth)   
+    self.addBordersViaRegex()
+    #self.createBlockContinents(1)
+
+    print "Deleting Territories",
+    territoriesDeleted = []
+    for r in range(self.rows):
+      for c in range(self.cols):
+        ix = r * (self.cols + 1) + c
+        doDelete = knightString[ix] != "K" 
+        #print doDelete
+        if doDelete:
+          self.deleteTerritory(self.getTerritoryName(r,c))
+          territoriesDeleted.append([r, c])
+    
+    
+    
+    #territoriesDeleted.extend(self.removeUselessTerritories())
+    
+    allTerritories = self.getTerritoryIDsFromNameRegex(".*")    
+    self.addChainContinents(allTerritories)
+
+    #print "td1",territoriesDeleted
+    # find all territories with only one border & no continents - then delete them.
+    
+    #print "td2",territoriesDeleted
+
+    self.setNumAttacks(int(ceil(sqrt(self.rows*self.cols))))
+    self.setNumFortifies(int(ceil(sqrt(sqrt(self.rows*self.cols)))))
+    self.setAllSoleContinentTerritoriesToNeutral()
+    self.addViewBordersToNeighbors(2)
+
+    #TODO: set card values.
+           #set # of players
+    
+    self.createPNGs(filePath, rowHeight, colWidth, 
+                             xOrigin, yOrigin, territoriesDeleted)
+
+    self.saveMapToFile(filePath + ".xml")
+
+
+
+    if (self.checkOneTerritoryCanReachAll() == False):
+      return False
+    
     return True
  
   def placeRandomVerticalStripes(self,r,c):
@@ -637,12 +708,12 @@ class KnightWGMap(SquareGridWGMap):
     self.setNumAttacks(int(ceil(sqrt(self.rows*self.cols))))
     self.setNumFortifies(int(ceil(sqrt(sqrt(self.rows*self.cols)))))
 
-    print filePath + ".xml"
+    #print filePath + ".xml"
     self.addViewBordersToNeighbors(2)
-    print filePath + ".xml"
+    #print filePath + ".xml"
     self.createPNGs(filePath, rowHeight, colWidth, 
                              xOrigin, yOrigin, territoriesDeleted)
-    print filePath + ".xml"
+    #print filePath + ".xml"
     self.saveMapToFile(filePath + ".xml")
     print filePath + ".xml"
     #print filePath + ".xml"
@@ -921,8 +992,8 @@ def createRandomKnightTour():
                             '//DISKSTATION/data/wargear development/Knights Tour/WoodBlack45.png',
                             '//DISKSTATION/data/wargear development/Knights Tour/WoodWhite45.png'                  
                             )
-  wgmap.rows = 8
-  wgmap.cols = 8
+  wgmap.rows = 16
+  wgmap.cols = 32
 
   numAttempts = 0
   while (numAttempts < 200):  
@@ -1072,7 +1143,77 @@ def createStripesGame():
     else:
       print "map creation failed. :^( ----  ATTEMPT: ",numAttempts+1
     numAttempts+=1
+    
+def createStringGame():
+  wgmap = KnightWGMap()
+  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Knights Tour/KnightsTour.xml')
+  wgmap.setMoreerKnightIcons( '//DISKSTATION/data/wargear development/Knights Tour/PlayerKnightLightWood45.png',
+                            '//DISKSTATION/data/wargear development/Knights Tour/PlayerKnightDarkWood45.png',
+                            '//DISKSTATION/data/wargear development/Knights Tour/WoodWhite45.png',
+                            '//DISKSTATION/data/wargear development/Knights Tour/WoodBlack45.png' ,                            
+                            '//DISKSTATION/data/wargear development/Knights Tour/WoodBlack45.png',
+                            '//DISKSTATION/data/wargear development/Knights Tour/WoodWhite45.png'                  
+                            )
 
+  knightString = """\
+_KK____K_KKKK_________KKKKKKKKK_
+KKKKKKKK__KK__KK_KKKKKKKKKKKKKKK
+K_KKKKKKKK_______KK_KKKKKK___K_
+__KKKKKKK_____K___K_KKKKKKKK__K_
+___KKKKK_____KK__KKKKKKKKKKK____
+___KKK_K_______KKKKKKKK_KKK_____
+___KK__K_____KKKKKKK_KK_KKKK____
+____KK______KK_K_K_KKKKKKKK_____
+____KK________KKK__K_KK__KK_____
+____K________KKKKKK_K_K__K______
+____KKKKK____KKKKKKK______K__KK_
+___KKKKKKK_____KKKK_____KK______
+____KKKKK______KKKK________KKKK_
+_____KKK_______KKK________KKKKKK
+_____KK_________K____________KK_
+"""
+  knightString = """\
+KKKK________KKK______KKK
+KKK___KKK___KKK_K___KKKK
+KKK_K_KKK__KKKK___K_KKKK
+______KKKK______________
+____________KKKK________
+__KKK_K______KKK____KKKK
+__KKK________KKK____KKK_
+_KKKK__KKK__________KKK_
+_______KKK__K__KKKK_____
+_______KKKK____KKK______
+_______________KKK______
+"""  
+
+# image reduction method  16x32
+  knightString = """\
+_________KKKK__________KK_______
+_KKKK_____KK_________KKKKKKKKKK_
+KKKKKKK___KK____KK_KKKKKKKKKKK__
+___KKKKKKK_____KKKKKKKKKKKKK_K__
+___KKKKKK______KKKKKKKKKKKKKK___
+___KKKKKK____KKKKKKK_KKKKKKK_K__
+____KKKK______KKKK_K_KKKKKKK____
+____K________K___KKKKKKKKKKK____
+_____KKK______KK___KKKKKKKK_____
+______KKKK___KKKKKKKKK_K__K_____
+______KKKKKK_KKKKKKKK_______K___
+_______KKKK____KKKKKK____KKK_KK_
+_______KKK______KKK_______K__K__
+_______KK_______KKKK_______KKKKK
+_______K________KKK_K______KKKKK
+_______K_________K____________K_
+"""
+  if (wgmap.createStringGame(
+                                 "//DISKSTATION/data/wargear development/Knights Tour/KnightsTour",knightString)):
+      print "succesfully created a map :^)"
+  else:
+      print "map creation failed. :^("
+    
+  
+  
+  
 def createGridGame():
   ''' Create a Knight Tour's map '''
   wgmap = KnightWGMap()
