@@ -11,27 +11,27 @@ from math import floor, ceil, sqrt, sin, cos, fabs
 import string
 import ImageFont, ImageDraw
 
-from General import WGMap
+from .General import WGMap
 
 
 class MULEWGMap(WGMap):
   def doSetup(self):
-    print "setting plot types"
+    print("setting plot types")
     self.initPlotTypes()
-    print "getting territory IDs"
+    print("getting territory IDs")
     self.getTerritoryIDs()    
     #print "adding Mule Box territories"
     #self.addMuleBoxTerritories()
     
-    print "adding mule territories"
+    print("adding mule territories")
     self.addMuleTerritories()
     
     #self.addMuleAttacksWithinPlots()
-    print "adding mule attacks"
+    print("adding mule attacks")
     self.addMuleAttacksBetweenPlots()
-    print "adding mercenary fortifies"
+    print("adding mercenary fortifies")
     self.addFortifiesForMercenaries()
-    print "adding mule factories"
+    print("adding mule factories")
     self.addMuleFactories()
     
   def initPlotTypes(self):

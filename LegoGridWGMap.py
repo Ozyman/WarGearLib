@@ -11,7 +11,7 @@ from math import floor, ceil, sqrt, sin, cos, fabs
 import string
 import ImageFont, ImageDraw
 
-from General import WGMap
+from .General import WGMap
 
 class LegoGridWGMap(WGMap):
   """
@@ -96,7 +96,7 @@ class LegoGridWGMap(WGMap):
     #I don't know what exactly this is doing, but it makign cols = cols-1, so use temp vars:
     tempR = self.rows
     tempC= self.cols    
-    self.grid = [[None for y in xrange(tempR)] for x in xrange(tempC)]                      
+    self.grid = [[None for y in range(tempR)] for x in range(tempC)]                      
                    
     #240 gives a dense board?
     #60 standard board
@@ -118,7 +118,7 @@ class LegoGridWGMap(WGMap):
     #I don't know what exactly this is doing, but it makign cols = cols-1, so use temp vars:
     tempR = self.rows
     tempC= self.cols    
-    self.grid = [[None for y in xrange(tempR)] for x in xrange(tempC)]                      
+    self.grid = [[None for y in range(tempR)] for x in range(tempC)]                      
     
 #  def setDefaultParameters(self):
 #    self.retriesBeforeGiveup = 50
@@ -150,7 +150,7 @@ class LegoGridWGMap(WGMap):
       for r in range(newBrick.r,newBrick.r+newBrick.height):
         #print c,r,
         self.grid[c][r] = newBrick
-    print
+    print()
     
     
     xPos = int(self.upperLeftX+(newBrick.c + newBrick.width/2.0)*self.colWidth)
@@ -325,7 +325,7 @@ make placeable.
       self.deleteAllTerritories()
       tempR = self.rows
       tempC = self.cols
-      self.grid = [[None for y in xrange(tempR)] for x in xrange(tempC)]
+      self.grid = [[None for y in range(tempR)] for x in range(tempC)]
       self.addBricks()
       self.addBrickBorders()
       
@@ -342,7 +342,7 @@ make placeable.
   
   def add2x1EdgeBricks(self):
     
-    for r in xrange(1,self.rows,3):
+    for r in range(1,self.rows,3):
       newBrick = self.LegoBrick()
       newBrick.width = 2
       newBrick.height = 1
@@ -359,9 +359,9 @@ make placeable.
       
   
   def addBricks(self):
-    print self.cols,
-    print "X",
-    print self.rows
+    print(self.cols, end=' ')
+    print("X", end=' ')
+    print(self.rows)
     
 
     retries = 0
@@ -385,7 +385,7 @@ make placeable.
 
   def addBrickBorders(self):
          
-    print "ADDING BRICK BORDERS"
+    print("ADDING BRICK BORDERS")
     for r in range(self.rows):
       for c in range(self.cols-1):
         if (self.checkForBorder(c,r,c+1,r)):
@@ -412,19 +412,19 @@ make placeable.
 
  
   def printGrid(self):
-    print str(self.cols) +"X" + str(self.rows)
-    print " ",
+    print(str(self.cols) +"X" + str(self.rows))
+    print(" ", end=' ')
     for c in range(self.cols):
-      print c%10,
-    print
+      print(c%10, end=' ')
+    print()
     for r in range(self.rows):
-      print r%10,
+      print(r%10, end=' ')
       for c in range(self.cols):
         if self.grid[c][r] == None:
-          print " ",
+          print(" ", end=' ')
         else:
-          print "x",
-      print
+          print("x", end=' ')
+      print()
         
   
   

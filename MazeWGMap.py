@@ -9,7 +9,7 @@ import re
 from PIL import Image
 from math import floor, ceil, sqrt, sin, cos, fabs
 import string
-import ImageFont, ImageDraw
+# import ImageFont, ImageDraw
 
 from General import SquareGridWGMap
 #import General
@@ -69,7 +69,7 @@ class MazeWGMap(SquareGridWGMap):
         brID = self.getTerritoryIDFromName(self.getTerritoryName(r+1,c+1))
         
         if self.doTheyBorder(ulID,blID) and self.doTheyBorder(ulID,urID) and self.doTheyBorder(brID,urID) and self.doTheyBorder(brID,blID):
-          print "cleaning up a 4-square at",r,c
+          print("cleaning up a 4-square at",r,c)
           #pick a random border to remove.
           rnd = random.random()
           if rnd < .25:
@@ -95,10 +95,10 @@ class MazeWGMap(SquareGridWGMap):
       for c in range(self.cols):        
         centerID = self.getTerritoryIDFromName(self.getTerritoryName(r,c))
         aboveID =  self.getTerritoryIDFromName(self.getTerritoryName(r-1,c))
-        print "looking for column at",r,c
+        print("looking for column at",r,c)
         # if there a border above, we have done this column continent already      
         if aboveID == None or not self.doTheyBorder(centerID,aboveID):
-          print "starting a column at ",centerID,r,c
+          print("starting a column at ",centerID,r,c)
           membersList = str(centerID)        
           rBelow=r+1
           prevBelowID = centerID
@@ -106,7 +106,7 @@ class MazeWGMap(SquareGridWGMap):
           contLength = 1
           # Find the extent of the column          
           while rBelow < self.rows and self.doTheyBorder(belowID,prevBelowID) :
-            print "continuing a column at ",belowID,rBelow,c 
+            print("continuing a column at ",belowID,rBelow,c) 
             membersList += ","  + str(belowID)
             contLength += 1
             rBelow += 1
@@ -146,7 +146,7 @@ class MazeWGMap(SquareGridWGMap):
     for r in range(self.rows):
       for c in range(self.cols):
         tid = self.getTerritoryIDFromName(self.getTerritoryName(r,c))
-        print "adding los vborders for",self.getTerritoryName(r,c)
+        print("adding los vborders for",self.getTerritoryName(r,c))
         self.addViewBordersToFellowMembers(tid)
   
 
@@ -160,8 +160,8 @@ class MazeWGMap(SquareGridWGMap):
     self.rowHeight = rowHeight
     self.colWidth = colWidth
     
-    print "Maze (" + str(self.rows) + "x" + str(self.cols) + ")"
-    print filePath
+    print("Maze (" + str(self.rows) + "x" + str(self.cols) + ")")
+    print(filePath)
     self.deleteAllBorders()
     self.deleteAllTerritories()
     self.deleteAllContinents()
@@ -172,7 +172,7 @@ class MazeWGMap(SquareGridWGMap):
        
     self.fillWithRandomWalk()
     
-    print "begin connect sg"
+    print("begin connect sg")
     returnValue = self.connectSeperateGroups()
     self.cleanupFourSquares()
     
@@ -205,14 +205,14 @@ class MazeWGMap(SquareGridWGMap):
     tilesize = float(Screen)/repeats
     tilesize /= tiledim
     p = []
-    for x in xrange(2*tiledim):
+    for x in range(2*tiledim):
       p.append(0)
     permutation = []
-    for value in xrange(tiledim):
+    for value in range(tiledim):
       permutation.append(value)
     random.shuffle(permutation)
 
-    for i in xrange(tiledim):
+    for i in range(tiledim):
       p[i] = permutation[i]
       p[tiledim+i] = p[i]
     
@@ -270,17 +270,17 @@ class MazeWGMap(SquareGridWGMap):
     colorScale = 2.5
     amplitude = 2.0
     maxamplitude = 3.0
-    for octave in xrange(octaves):
+    for octave in range(octaves):
         amplitude *= persistence
         maxamplitude += amplitude
 
-    for x in xrange(self.cols*self.colWidth):
-        for y in xrange(self.rows*self.rowHeight):
+    for x in range(self.cols*self.colWidth):
+        for y in range(self.rows*self.rowHeight):
             sc = float(Screen)/tilesize
             frequency = 1.0
             amplitude = 1.0
             color = 0.0
-            for octave in xrange(octaves):
+            for octave in range(octaves):
                 random.seed()
                 sc *= frequency
                 grey = noise(sc*float(x)/Screen,sc*float(y)/Screen,0.0)
@@ -337,9 +337,9 @@ class MazeWGMap(SquareGridWGMap):
     c=(255,255,255)
 
     # create wallsa aroudn imboard2 and then later we paste imboard into imboard2
-    for x in xrange(self.cols*self.colWidth+2*wallHalfWidth):
+    for x in range(self.cols*self.colWidth+2*wallHalfWidth):
       self.safePutPixel(imBoard2,(x,0), c)
-    for y in xrange(self.rows*self.rowHeight+2*wallHalfWidth):
+    for y in range(self.rows*self.rowHeight+2*wallHalfWidth):
       self.safePutPixel(imBoard2,(0,y), c)
       
     #print "create new RGB image:", self.cols*self.colWidth,self.rows*rowHeight
@@ -489,8 +489,8 @@ class MazeWGMap(SquareGridWGMap):
     # This will check each pixel.  If the pixel is black, and there is a pixel below that is black, and one above that is not, then make it light-grey
     #  Also check left/right for light-grey
     def addWallTops(im):
-      for x in xrange(self.cols*self.colWidth,1,-1):
-        for y in xrange(self.rows*self.rowHeight,1,-1):
+      for x in range(self.cols*self.colWidth,1,-1):
+        for y in range(self.rows*self.rowHeight,1,-1):
           #print x,y
           #print im.getpixel((x,y))
           if (im.getpixel((x,y)) == (0,0,0,255)):
@@ -498,8 +498,8 @@ class MazeWGMap(SquareGridWGMap):
               im.putpixel((x,y),(255,255,255))
             if( (im.getpixel((x+1,y)) == (0,0,0,255)) and (im.getpixel((x-1,y)) != (0,0,0,255)) ):
               im.putpixel((x,y),(255,255,255))
-      for x in xrange(self.cols*self.colWidth,1,-1):
-        for y in xrange(self.rows*self.rowHeight,1,-1):
+      for x in range(self.cols*self.colWidth,1,-1):
+        for y in range(self.rows*self.rowHeight,1,-1):
           if ((im.getpixel((x,y+1)) == (255,255,255,255)) and
               (im.getpixel((x+1,y)) == (255,255,255,255)) and
               (im.getpixel((x+2,y)) == (255,255,255,255)) and
@@ -515,8 +515,8 @@ class MazeWGMap(SquareGridWGMap):
     # This will check each pixel.  If the pixel is black, and there is a pixel below that is black, and one above that is not, then make it light-grey
     #  Also check left/right for light-grey
     def addWallTops2(im):
-      for x in xrange(self.cols*self.colWidth-2,1,-1):
-        for y in xrange(self.rows*self.rowHeight-2,1,-1):
+      for x in range(self.cols*self.colWidth-2,1,-1):
+        for y in range(self.rows*self.rowHeight-2,1,-1):
           #print x,y
           #print im.getpixel((x,y))
           if (im.getpixel((x,y)) == (0,0,0,255)):
@@ -524,8 +524,8 @@ class MazeWGMap(SquareGridWGMap):
               im.putpixel((x,y),(255,255,255))
             if( (im.getpixel((x+1,y)) == (0,0,0,255)) and (im.getpixel((x-1,y)) != (0,0,0,255)) ):
               im.putpixel((x,y),(255,255,255))
-      for x in xrange(self.cols*self.colWidth-2,1,-1):
-        for y in xrange(self.rows*self.rowHeight-2,1,-1):
+      for x in range(self.cols*self.colWidth-2,1,-1):
+        for y in range(self.rows*self.rowHeight-2,1,-1):
           if ((im.getpixel((x,y+1)) == (255,255,255,255)) and
               (im.getpixel((x+1,y)) == (255,255,255,255)) and
               (im.getpixel((x+2,y)) == (255,255,255,255)) and
@@ -542,8 +542,8 @@ class MazeWGMap(SquareGridWGMap):
     def addWallShadows2(im):
       alphaFade = .65
       minAlpha = 32
-      for x in xrange(1,self.cols*self.colWidth):
-        for y in xrange(1,self.rows*self.rowHeight):
+      for x in range(1,self.cols*self.colWidth):
+        for y in range(1,self.rows*self.rowHeight):
           (r,g,b,a) = im.getpixel((x,y))
           if (a == 0):
             (ur,ug,ub,ua) = im.getpixel((x,y-1))
@@ -561,8 +561,8 @@ class MazeWGMap(SquareGridWGMap):
     
     # then repeat and fill in the corners. 
     def addWallShadows(im):
-      for x in xrange(self.cols*self.colWidth-2,1,-1):
-        for y in xrange(self.rows*self.rowHeight-2,1,-1):
+      for x in range(self.cols*self.colWidth-2,1,-1):
+        for y in range(self.rows*self.rowHeight-2,1,-1):
           #print x,y
           #print im.getpixel((x,y))
           #if ((im.getpixel((x,y)) == (1,1,1,0)) and (im.getpixel((x,y-1)) == (0,0,0,255)) and  (im.getpixel((x-1,y)) == (0,0,0,255))):
@@ -584,8 +584,8 @@ class MazeWGMap(SquareGridWGMap):
               self.putOpaquerPixel(im,(x,y),(0,0,0,160))
               setPixel = True
     
-      for x in xrange(1,self.cols*self.colWidth):
-        for y in xrange(1,self.rows*self.rowHeight):
+      for x in range(1,self.cols*self.colWidth):
+        for y in range(1,self.rows*self.rowHeight):
           (_,_,_,alpha1) = im.getpixel((x,y-1))
           (_,_,_,alpha2) = im.getpixel((x-1,y))
                     
@@ -717,9 +717,9 @@ class MazeWGMap(SquareGridWGMap):
   def fillWithRandomWalk(self):
     
     self.addRandomWalk(-1,-1)
-    print "TRY AGAIN"
+    print("TRY AGAIN")
     while(self.countTerritoriesWithBorders(0) > 0):
-      print "TRY AGAIN!"
+      print("TRY AGAIN!")
       self.addRandomWalk(-2,-2)
 
   def addRandomWalk(self,r,c):
@@ -736,18 +736,18 @@ class MazeWGMap(SquareGridWGMap):
             The example I saw had 4 copies of the border from tid: 0 to tid: 1.  
             ah, but is it actually created multiple times?  I think addBorder, checks & will not create.
     """
-    print "begin addRandomWalk"
+    print("begin addRandomWalk")
     # set r & c to a zero-border territory    
     if r == -2 or c == -2:
       startingTerritory = self.getATerritoryWithNBorders(0)
       (r,c) = self.getRC(startingTerritory)
       r = int(r)
       c = int(c)
-      print "found a new starting spot at",r,c 
+      print("found a new starting spot at",r,c) 
     
     
     if (r < 0 or c < 0):
-      print "r,c < 0 ?!?!?"
+      print("r,c < 0 ?!?!?")
       r = self.rows/2
       c = self.cols/2
     
@@ -759,7 +759,7 @@ class MazeWGMap(SquareGridWGMap):
       
       feature = random.choice(self.features)
       #oldGrowthPoints = growthPoints.copy()
-      print "attempting to add feature",feature,(rFrom,cFrom,rTo,cTo)
+      print("attempting to add feature",feature,(rFrom,cFrom,rTo,cTo))
       dx = cTo - cFrom
       dy = rTo - rFrom      
       for step in feature:
@@ -775,12 +775,12 @@ class MazeWGMap(SquareGridWGMap):
           cTo = self.wrapC(cTo)
         else:
           if not self.inBorders((rTo, cTo)):
-            print "{},{} out of borders - in feature add".format(rTo,cTo)
+            print("{},{} out of borders - in feature add".format(rTo,cTo))
             #growthPoints.add((rFrom,cFrom))
             #growthPoints = oldGrowthPoints.copy()
             return
 
-        print "next feature step",(rFrom,cFrom,rTo,cTo)
+        print("next feature step",(rFrom,cFrom,rTo,cTo))
         attemptTerritoryAdd(rFrom,cFrom,rTo,cTo,grow=False)
         (rFrom,cFrom) = (rTo,cTo)
       #growthPoints = oldGrowthPoints.copy()
@@ -793,59 +793,59 @@ class MazeWGMap(SquareGridWGMap):
         cTo = self.wrapC(cTo)
       else:
         if not self.inBorders((rTo, cTo)):
-          print "{},{} out of borders".format(rTo,cTo)
+          print("{},{} out of borders".format(rTo,cTo))
           growthPoints.add((rFrom,cFrom))
           return
       fromTerritory = self.getTerritoryElement((rFrom,cFrom))
       toTerritory = self.getTerritoryElement((rTo, cTo))
       fromBorders = self.getBorderCount(fromTerritory.getAttribute("tid"))
-      print "base has borders:",fromBorders
+      print("base has borders:",fromBorders)
       
-      print "attempting",rFrom,cFrom,rTo,cTo
+      print("attempting",rFrom,cFrom,rTo,cTo)
       if (toTerritory != None):
         toBorders = self.getBorderCount(toTerritory.getAttribute("tid"))
-        print "target has borders:",toBorders
+        print("target has borders:",toBorders)
         if (toBorders > 0):
           if random.random() < self.connectionRejection:
             if grow:
               growthPoints.add((rFrom,cFrom))  #add this point back again for another try
-            print "target already has borders, connection rejection - try again from {},{}".format(rFrom,cFrom)
+            print("target already has borders, connection rejection - try again from {},{}".format(rFrom,cFrom))
           else:             
             if  random.random() > self.chanceToDeadEnd:
-              print "attempting border add: {},{} <-> {},{}".format(rFrom,cFrom,rTo,cTo)
+              print("attempting border add: {},{} <-> {},{}".format(rFrom,cFrom,rTo,cTo))
               if not self.addBorder((rFrom, cFrom),(rTo, cTo)): #border already existed
                 if fromBorders < 3:
                   if grow:                  
                     growthPoints.add((rFrom,cFrom))
-                  print "added new border from {},{} to {},{} - continuing".format(rFrom, cFrom,rTo, cTo)
+                  print("added new border from {},{} to {},{} - continuing".format(rFrom, cFrom,rTo, cTo))
                 else:
-                  print "target ({},{}) already has 3+ borders".format(rFrom,cFrom)
+                  print("target ({},{}) already has 3+ borders".format(rFrom,cFrom))
               else:    
-                print "border already existed from {},{} to {},{}".format(rFrom, cFrom,rTo, cTo)
+                print("border already existed from {},{} to {},{}".format(rFrom, cFrom,rTo, cTo))
             else:
-              print "random deadend"
+              print("random deadend")
         else:
           self.addBorder((rFrom, cFrom),(rTo, cTo))
           if grow:
             growthPoints.add((rTo,cTo))
-          print "added new border from {},{} to {},{} - autocontinue".format(rFrom, cFrom,rTo, cTo)
+          print("added new border from {},{} to {},{} - autocontinue".format(rFrom, cFrom,rTo, cTo))
           if random.random() < self.branchingFactor:
               if grow:
                 growthPoints.add((rFrom,cFrom))
-              print "decided to branch, adding {},{} as growth point".format(rFrom, cFrom)
+              print("decided to branch, adding {},{} as growth point".format(rFrom, cFrom))
               
       else:
         # add growth point back on, if we couldn't grow from here.
         if grow:
           growthPoints.add((rFrom,cFrom))
-          print "to territory doesnt exist, try again from {},{}".format(rFrom,cFrom)
+          print("to territory doesnt exist, try again from {},{}".format(rFrom,cFrom))
       
-      print "done with attempt Territory Add"                
+      print("done with attempt Territory Add")                
     
     while(len(growthPoints) > 0):      
       (rF, cF) = growthPoints.pop()
       rnd = random.random()
-      print "growing at",rF,cF,growthPoints         
+      print("growing at",rF,cF,growthPoints)         
       
       if int(rnd*100) % 2 == 0:
         if rnd < .25:
@@ -866,7 +866,7 @@ class MazeWGMap(SquareGridWGMap):
         else:
           attemptTerritoryAdd(rF, cF, rF-1, cF)
     
-    print "done with growth points"    
+    print("done with growth points")    
       
       
 
@@ -928,7 +928,7 @@ def createMazeMaps():
   wgmap = MazeWGMap()
   originalXML='//DISKSTATION/data/wargear development/Maze/Random Mazes(7).xml'
   wgmap.loadMapFromFile(originalXML)
-  print "loading from "+originalXML
+  print("loading from "+originalXML)
   wgmap.doWrap = False;
   for mazeType in ["LineOfSight",""]:
     '''

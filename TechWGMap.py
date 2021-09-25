@@ -11,7 +11,7 @@ from math import floor, ceil, sqrt, sin, cos, fabs
 import string
 import ImageFont, ImageDraw
 
-from General import WGMap
+from .General import WGMap
 
 class TechWGMap(WGMap):
   """
@@ -151,7 +151,7 @@ class TechWGMap(WGMap):
     London = self.getTerritoryIDFromName("London")
 
     # these were getting set to Standard instead of AutoCapture  I don't know why
-    print "lab territories",self.LabTerritories    
+    print("lab territories",self.LabTerritories)    
     self.addCollectorContinents(self.LabTerritories,individualBonus=1,pairBonus=1,factory=self.AfricaFlask,nameSuffix="_Africa-LAB",additionalMembers=[Capetown], factoryType="AutoCapture")
     self.addCollectorContinents(self.LabTerritories,individualBonus=1,pairBonus=1,factory=self.USAFlask,nameSuffix="_USA-LAB",additionalMembers=[DC], factoryType="AutoCapture")
     self.addCollectorContinents(self.LabTerritories,individualBonus=1,pairBonus=1,factory=self.UKFlask,nameSuffix="_UK-LAB",additionalMembers=[London], factoryType="AutoCapture")
@@ -226,10 +226,10 @@ class TechWGMap(WGMap):
       self.addContinent(continentName, memberList, "1", te.getAttribute("tid"))
     
     for WT in self.NATerritories | set([DC]):
-      print "WT",WT
+      print("WT",WT)
       te = self.getTerritoryElement(WT)
-      print "tid",te.getAttribute("tid")
-      print "usap:",USAPropaganda
+      print("tid",te.getAttribute("tid"))
+      print("usap:",USAPropaganda)
       continentName = "USA Propaganda - " +  te.getAttribute("name")
       memberList = ",".join([te.getAttribute("tid"), USAPropaganda, DC])
       self.addContinent(continentName, memberList, "2", te.getAttribute("tid"))
@@ -479,8 +479,8 @@ class TechWGMap(WGMap):
     AllNormalTerritories = self.WorldTerritories-DefendableTerritories
     
     
-    print "homes",AllHomes
-    print"DefendableTerritories",DefendableTerritories
+    print("homes",AllHomes)
+    print("DefendableTerritories",DefendableTerritories)
 
     self.addBordersToSet(USAArtillery, (self.USATerritories-self.LabTerritories)-self.USAHome, 'One-way', 
                   "Artillery", "1")
@@ -576,7 +576,7 @@ def fixFBorders():
   for border in wgmap.DOM.getElementsByTagName("border"):
  
     if (border.getAttribute("type") =="Fortify"):
-      print "borderbetween",border.getAttribute("fromid"),border.getAttribute("toid")
+      print("borderbetween",border.getAttribute("fromid"),border.getAttribute("toid"))
       border.setAttribute("type","Fortify Only")
     
   wgmap.saveMapToFile('//DISKSTATION/data/wargear development/Technology/InventionOut.xml',False)
@@ -688,7 +688,7 @@ def addTechFlaskContinents():
     IDSet = flaskTerritories
     IDSet2 = set(IDSet)
     for a in IDSet:
-      print "adding",a,IDSet2
+      print("adding",a,IDSet2)
       IDSet2.remove(a)
       #import pdb; pdb.set_trace()
       aName = wgmap.getTerritoryNameFromID(a)

@@ -9,7 +9,7 @@ import re
 from PIL import Image
 from math import floor, ceil, sqrt, sin, cos, fabs
 import string
-import ImageFont, ImageDraw
+# import ImageFont, ImageDraw
 
 from General import SquareGridWGMap, WGMap
 
@@ -66,7 +66,7 @@ class KnightWGMap(SquareGridWGMap):
     yOrigin = rowHeight/2
     
     #print "Creating Function Knight's Tour:",filePath,rows,cols,rowHeight,colWidth,xOrigin,yOrigin
-    print "Knight's Tour (" + str(self.rows) + "x" + str(self.cols) + ")"#+str(placeKnightFunc)
+    print("Knight's Tour (" + str(self.rows) + "x" + str(self.cols) + ")")#+str(placeKnightFunc)
     
     self.deleteAllBorders()
     self.deleteAllTerritories()
@@ -78,7 +78,7 @@ class KnightWGMap(SquareGridWGMap):
     self.addBordersViaRegex()
     #self.createBlockContinents(1)
 
-    print "Deleting Territories",
+    print("Deleting Territories", end=' ')
     territoriesDeleted = []
     inper = .7
     outper = .1
@@ -132,7 +132,7 @@ class KnightWGMap(SquareGridWGMap):
     yOrigin = rowHeight/2
     
     #print "Creating Function Knight's Tour:",filePath,rows,cols,rowHeight,colWidth,xOrigin,yOrigin
-    print "Knight's Tour (" + str(self.rows) + "x" + str(self.cols) + ")"#+str(placeKnightFunc)
+    print("Knight's Tour (" + str(self.rows) + "x" + str(self.cols) + ")")#+str(placeKnightFunc)
     
     self.deleteAllBorders()
     self.deleteAllTerritories()
@@ -144,7 +144,7 @@ class KnightWGMap(SquareGridWGMap):
     self.addBordersViaRegex()
     #self.createBlockContinents(1)
 
-    print "Deleting Territories",
+    print("Deleting Territories", end=' ')
     territoriesDeleted = []
     for r in range(self.rows):
       for c in range(self.cols):
@@ -202,9 +202,10 @@ class KnightWGMap(SquareGridWGMap):
       if (random.random() < .3):
         return True;
 
-  def placeStripes(self,r,c,(inper,outper)):
+  def placeStripes(self,r,c, xxx_todo_changeme):
     # inper = chance to keep a knight in cell
     # outper = chance to keep a knight out of cell  
+    (inper,outper) = xxx_todo_changeme
     isKnight = False
     
     if ( r%6 == 1 or r%6 == 2 or c%7 == 2 or c%7 == 1):
@@ -252,8 +253,9 @@ class KnightWGMap(SquareGridWGMap):
     return False
   
   # return true to delete
-  def placeCells(self,r,c,(inper,outper)):
+  def placeCells(self,r,c, xxx_todo_changeme1):
     
+    (inper,outper) = xxx_todo_changeme1
     inCell = True
     
     # edges
@@ -284,13 +286,14 @@ class KnightWGMap(SquareGridWGMap):
         outper += .1
       else: # keep knight
         outper = .05
-    print doDelete    
+    print(doDelete)    
     return (doDelete, (inper, outper))
 
   # return true to delete
-  def placeFourSquare(self,r,c,(inper,outper)):
+  def placeFourSquare(self,r,c, xxx_todo_changeme2):
     # inper = chance to keep a knight in cell
     # outper = chance to keep a knight out of cell  
+    (inper,outper) = xxx_todo_changeme2
     inCell = True
     
     # edges
@@ -322,7 +325,7 @@ class KnightWGMap(SquareGridWGMap):
       else: # keep knight
         outper -= .5
     #print doDelete    
-    print "P4S incell=",inCell, doDelete, (inper, outper)
+    print("P4S incell=",inCell, doDelete, (inper, outper))
     return (doDelete, (inper, outper))
 
   def placeKnightsSpots(self,r,c):
@@ -352,7 +355,7 @@ class KnightWGMap(SquareGridWGMap):
     xOrigin = colWidth/2
     yOrigin = rowHeight/2
     
-    print "Creating Cells Knight's Tour:",filePath,self.rows,self.cols,rowHeight,colWidth,xOrigin,yOrigin
+    print("Creating Cells Knight's Tour:",filePath,self.rows,self.cols,rowHeight,colWidth,xOrigin,yOrigin)
     self.deleteAllBorders()
     self.deleteAllTerritories()
     self.deleteAllContinents()
@@ -366,7 +369,7 @@ class KnightWGMap(SquareGridWGMap):
     self.addBordersViaRegex()
     self.createBlockContinents(1)
 
-    print "Deleting Territories",
+    print("Deleting Territories", end=' ')
     territoriesDeleted = [] 
     
     
@@ -397,7 +400,7 @@ class KnightWGMap(SquareGridWGMap):
     # Draw two cols of knights at 4,5,9,10,14,15,...
     # with one open spot on the top half & one in the bottom half.
     for c in range(4,self.cols,5):
-      print ""  
+      print("")  
       rSkip = random.randint(1, self.rows/2-2) 
       for r in range(1,self.rows/2-1):
         if r != rSkip:
@@ -482,7 +485,7 @@ class KnightWGMap(SquareGridWGMap):
   def genGeoNeighbors(self,territoryID):
     name = self.getTerritoryNameFromID(territoryID)
     (row,col) = name.split("_")     
-    print name,row,col
+    print(name,row,col)
     for x in self.genGeoNeighborsRC(int(row),int(col)):
       yield x
     
@@ -575,7 +578,7 @@ class KnightWGMap(SquareGridWGMap):
         chain = frozenset([neighbor, base])        
         chains.add(chain)
                           
-    print chains
+    print(chains)
     for chain in chains:
       name = "chain"
       members = set()
@@ -595,7 +598,7 @@ class KnightWGMap(SquareGridWGMap):
       #print "numcont",self.getContinentsWithTerritory(territory)
       if self.getBorderCount(territory) < 2 and len(self.getContinentsWithTerritory(territory)) < 1:
         #print "delete2", territory        
-        t2d.append(map(int,self.getRCFromID(territory)))
+        t2d.append(list(map(int,self.getRCFromID(territory))))
         self.deleteTerritory(territory)
     #print "T2d",t2d    
     return t2d
@@ -644,7 +647,7 @@ class KnightWGMap(SquareGridWGMap):
     if yOrigin < 0:
       yOrigin = rowHeight/2
     
-    print "Creating Random Knight's Tour:",filePath,self.rows,self.cols,rowHeight,colWidth,percentDeadSquares,xOrigin,yOrigin
+    print("Creating Random Knight's Tour:",filePath,self.rows,self.cols,rowHeight,colWidth,percentDeadSquares,xOrigin,yOrigin)
     
     self.setBoardName("Knight's Tour " + str(self.rows) + "x" + str(self.cols))
 
@@ -660,7 +663,7 @@ class KnightWGMap(SquareGridWGMap):
     #self.createBlockContinents(1)
     #print "here1",self.DOM.toprettyxml()
 
-    print "Deleting Territories"
+    print("Deleting Territories")
     territoriesToDelete = floor(percentDeadSquares*self.rows*self.cols)
     territoriesDeleted = [] 
     while(territoriesToDelete > 0):
@@ -715,7 +718,7 @@ class KnightWGMap(SquareGridWGMap):
                              xOrigin, yOrigin, territoriesDeleted)
     #print filePath + ".xml"
     self.saveMapToFile(filePath + ".xml")
-    print filePath + ".xml"
+    print(filePath + ".xml")
     #print filePath + ".xml"
 
     return True
@@ -754,18 +757,18 @@ class KnightWGMap(SquareGridWGMap):
             imFill.putpixel((x, y), (255, 255, 255)) 
 
 
-    print "pasting"
+    print("pasting")
     #paste in the un/deleted territories to the Board Image
     knightBorder=0
-    print "territoriesDeleted", territoriesDeleted
+    print("territoriesDeleted", territoriesDeleted)
     for col in range(self.cols):
       for row in range(self.rows):
-        print territoriesDeleted
-        print [ (r,c) for (r,c) in territoriesDeleted]
+        print(territoriesDeleted)
+        print([ (r,c) for (r,c) in territoriesDeleted])
         found = [(r,c) for (r,c) in territoriesDeleted if r == row if c == col]
-        print "found",found
+        print("found",found)
         if found:
-          print "found hole!"
+          print("found hole!")
           if ((row+col) % 2 == 0): #black square
             tileImage = self.holeDarkImage     
           else:
@@ -999,10 +1002,10 @@ def createRandomKnightTour():
   while (numAttempts < 200):  
     if (wgmap.createRandomGame(
         "//DISKSTATION/data/wargear development/Knights Tour/KnightsTour")):
-      print "succesfully created a map :^) after", numAttempts+1,"attempts"
+      print("succesfully created a map :^) after", numAttempts+1,"attempts")
       break
     else:
-      print "map creation failed. :^( ----  ATTEMPT: ",numAttempts+1
+      print("map creation failed. :^( ----  ATTEMPT: ",numAttempts+1)
     numAttempts+=1
     
 def createCellsKnightTour():
@@ -1025,9 +1028,9 @@ def createCellsKnightTour():
                               wgmap.placeCells):    
 #  if (wgmap.createCellsGame(
 #      "//BHO/data/wargear development/Knights Tour/KnightsTour")):
-    print "succesfully created a map :^)"
+    print("succesfully created a map :^)")
   else:
-    print "map creation failed. :^( "
+    print("map creation failed. :^( ")
 
 def createVerticalStripesKnightsTour():
   ''' Create a Knight Tour's map '''
@@ -1042,10 +1045,10 @@ def createVerticalStripesKnightsTour():
   while (numAttempts < 20):
     if (wgmap.createFunctionGame(
                                  "//DISKSTATION/data/wargear development/Knights Tour/KnightsTour",wgmap.placeRandomVerticalStripes)):
-      print "succesfully created a map :^) after", numAttempts+1,"attempts"
+      print("succesfully created a map :^) after", numAttempts+1,"attempts")
       break
     else:
-      print "map creation failed. :^( ----  ATTEMPT: ",numAttempts+1
+      print("map creation failed. :^( ----  ATTEMPT: ",numAttempts+1)
     numAttempts+=1
 
 
@@ -1063,10 +1066,10 @@ def createSnakesGame():
   while (numAttempts < 20):
     if (wgmap.createFunctionGame(
                                  "//BHO/data/wargear development/Knights Tour/KnightsTour",wgmap.placeRandomSnake)):
-      print "succesfully created a map :^) after", numAttempts+1,"attempts"
+      print("succesfully created a map :^) after", numAttempts+1,"attempts")
       break
     else:
-      print "map creation failed. :^( ----  ATTEMPT: ",numAttempts+1
+      print("map creation failed. :^( ----  ATTEMPT: ",numAttempts+1)
     numAttempts+=1
 
 def createFunctionCellGame():
@@ -1088,10 +1091,10 @@ def createFunctionCellGame():
   while (numAttempts < 30):
     if (wgmap.createFunctionGame(
                                  "//DISKSTATION/data/wargear development/Knights Tour/KnightsTour",wgmap.placeCells)):
-      print "succesfully created a map :^) after", numAttempts+1,"attempts"
+      print("succesfully created a map :^) after", numAttempts+1,"attempts")
       break
     else:
-      print "map creation failed. :^( ----  ATTEMPT: ",numAttempts+1
+      print("map creation failed. :^( ----  ATTEMPT: ",numAttempts+1)
     numAttempts+=1
 
 def createFunctionFourSquareGame():
@@ -1113,10 +1116,10 @@ def createFunctionFourSquareGame():
   while (numAttempts < 30):
     if (wgmap.createFunctionGame(
                                  "//DISKSTATION/data/wargear development/Knights Tour/KnightsTour",wgmap.placeFourSquare)):
-      print "succesfully created a map :^) after", numAttempts+1,"attempts"
+      print("succesfully created a map :^) after", numAttempts+1,"attempts")
       break
     else:
-      print "map creation failed. :^( ----  ATTEMPT: ",numAttempts+1
+      print("map creation failed. :^( ----  ATTEMPT: ",numAttempts+1)
     numAttempts+=1
 
 def createStripesGame():
@@ -1138,10 +1141,10 @@ def createStripesGame():
   while (numAttempts < 30):
     if (wgmap.createFunctionGame(
                                  "//DISKSTATION/data/wargear development/Knights Tour/KnightsTour",wgmap.placeStripes)):
-      print "succesfully created a map :^) after", numAttempts+1,"attempts"
+      print("succesfully created a map :^) after", numAttempts+1,"attempts")
       break
     else:
-      print "map creation failed. :^( ----  ATTEMPT: ",numAttempts+1
+      print("map creation failed. :^( ----  ATTEMPT: ",numAttempts+1)
     numAttempts+=1
     
 def createStringGame():
@@ -1207,9 +1210,9 @@ _______K_________K____________K_
 """
   if (wgmap.createStringGame(
                                  "//DISKSTATION/data/wargear development/Knights Tour/KnightsTour",knightString)):
-      print "succesfully created a map :^)"
+      print("succesfully created a map :^)")
   else:
-      print "map creation failed. :^("
+      print("map creation failed. :^(")
     
   
   
@@ -1228,10 +1231,10 @@ def createGridGame():
   while (numAttempts < 1):
     if (wgmap.createFunctionGame(
                                  "//BHO/data/wargear development/Knights Tour/KnightsTour",wgmap.placeGrid)):
-      print "succesfully created a map :^) after", numAttempts+1,"attempts"
+      print("succesfully created a map :^) after", numAttempts+1,"attempts")
       break
     else:
-      print "map creation failed. :^( ----  ATTEMPT: ",numAttempts+1
+      print("map creation failed. :^( ----  ATTEMPT: ",numAttempts+1)
     numAttempts+=1
 
 
