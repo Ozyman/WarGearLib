@@ -1,14 +1,15 @@
-from xml.dom.minidom import parse, Document, parseString
+# from xml.dom.minidom import parse, Document, parseString
+from xml.dom.minidom import parse, parseString
 # import random
 import re
-from math import floor, ceil, sqrt, sin, cos, fabs
-import string
-from sys import exc_info, setrecursionlimit, stdout
-import traceback
+from math import floor, fabs
+# import string
+from sys import setrecursionlimit, stdout
+# import traceback
 from copy import deepcopy
 import itertools
 # import exceptions
-import sys
+# import sys
 from PIL import Image, ImageDraw
 import colorsys
 import networkx as nx
@@ -17,7 +18,7 @@ import networkx as nx
 import csv
 
 # from . import KnightWGMap
-import KnightWGMap
+# import KnightWGMap
 
 # TODO:       SHould wrap all getAttribute("tid" with an int(), so that we are always teating tid as int.
 
@@ -70,7 +71,7 @@ class WGMap(object):
         Args:
           filePath (str):
 
-        >>> saveMapToFile(//SERVER/path/to/map/MapName.xml)
+            saveMapToFile(//SERVER/path/to/map/MapName.xml)
         """
         # if(printStats):
         #  self.printStatistics()
@@ -113,10 +114,10 @@ class WGMap(object):
         """Print the DOM to stdout in XML format."""
         print(self.DOM.toprettyxml())
 
-    def createBoard(self, boardName, versionMaj="1", versionMin="0", minPlayers="2",
-                    maxPlayers="16",
-                    availablePlayers="2,3,4,5,7,8,9,10,12,13,14,15,16",
-                    gameplayType="Turn Based"):
+    def createBoard(self, boardName, version_maj="1", version_min="0", min_players="2",
+                    max_players="16",
+                    available_players="2,3,4,5,7,8,9,10,12,13,14,15,16",
+                    gameplay_type="Turn Based"):
         '''
         Add a <board> element to the DOM.
 
@@ -131,12 +132,12 @@ class WGMap(object):
 
         newBoardElement = self.DOM.createElement("board")
         newBoardElement.setAttribute("boardname", str(boardName))
-        newBoardElement.setAttribute("version_major", str(versionMaj))
-        newBoardElement.setAttribute("version_minor", str(versionMin))
-        newBoardElement.setAttribute("min_players", str(minPlayers))
-        newBoardElement.setAttribute("max_players", str(maxPlayers))
-        newBoardElement.setAttribute("available_players", str(availablePlayers))
-        newBoardElement.setAttribute("gameplay_type", str(gameplayType))
+        newBoardElement.setAttribute("version_major", str(version_maj))
+        newBoardElement.setAttribute("version_minor", str(version_min))
+        newBoardElement.setAttribute("min_players", str(min_players))
+        newBoardElement.setAttribute("max_players", str(max_players))
+        newBoardElement.setAttribute("available_players", str(available_players))
+        newBoardElement.setAttribute("gameplay_type", str(gameplay_type))
 
         newWGXMLElement.appendChild(newBoardElement)
 
@@ -161,7 +162,7 @@ class WGMap(object):
     def getBorderTidsByTid(self, tid):
         returnList = []
         for be in self.getBorderElementsByTerritoryID(tid):
-            returnList.add(be.getAttribute("tid"))
+            returnList.append(be.getAttribute("tid"))
 
         return returnList
 
@@ -357,8 +358,8 @@ class WGMap(object):
                         continentName = continentName + '.'.join(str(x) for x in combo)
                         print("cn: " + continentName + "   combo: " + str(combo))
                         # for comboMembers in combo:
-                        self.addContinentFromMemberIDSet(continentName, combo, bonus=str(factoryBonus),
-                                                         factory=str(tid),
+                        self.addContinentFromMemberIDSet(continentName, combo, bonus=factoryBonus,
+                                                         factory=tid,
                                                          factoryType=factoryType)
                     factoryBonus *= -1
 
@@ -400,7 +401,7 @@ class WGMap(object):
                 for members in itertools.combinations(possibleMembers, numberOfNeighbors):
                     # get value based on # of members
                     value = 1
-                    if (members.size() % 2 == 0):
+                    if members.size() % 2 == 0:
                         value *= -1
 
                     if (CNPrefix != None):
@@ -475,19 +476,19 @@ class WGMap(object):
         self.addBorder(SupplyID, B1ID, direction="One-way", borderType="Fortify Only")
         self.addBorder(ReadyID, B1ID, direction="One-way", borderType="Attack Only")
 
-        self.addContinent(factoryNamePrefix + "B1->Ready", str(B1ID), bonus="-1", factory=str(ReadyID),
+        self.addContinent(factoryNamePrefix + "B1->Ready", str(B1ID), bonus=-1, factory=ReadyID,
                           factoryType="AutoCapture")
         # self.addContinent(factoryNamePrefix + "B2->Ready",str(B2ID),bonus="-1",factory=str(ReadyID),factoryType="AutoCapture")
-        self.addContinent(factoryNamePrefix + "P->Ready", str(PlayerID), bonus="1", factory=str(ReadyID),
+        self.addContinent(factoryNamePrefix + "P->Ready", str(PlayerID), bonus=1, factory=ReadyID,
                           factoryType="AutoCapture")
-        self.addContinent(factoryNamePrefix + "B1->B2", str(B1ID), bonus="1", factory=str(B2ID),
+        self.addContinent(factoryNamePrefix + "B1->B2", str(B1ID), bonus=1, factory=B2ID,
                           factoryType="AutoCapture")
 
-        self.addContinent(factoryNamePrefix + "B1-Cost", str(B1ID), bonus=str(-1 * fabs(N)), factory=str(B1ID),
+        self.addContinent(factoryNamePrefix + "B1-Cost", str(B1ID), bonus=int(-1 * fabs(N)), factory=B1ID,
                           factoryType="AutoCapture")
-        self.addContinent(factoryNamePrefix + "B2-Drain", str(B2ID), bonus="-1", factory=str(B2ID),
+        self.addContinent(factoryNamePrefix + "B2-Drain", str(B2ID), bonus=-1, factory=B2ID,
                           factoryType="AutoCapture")
-        self.addContinent(factoryNamePrefix + "NewUnits", str(B1ID) + "," + str(B2ID), bonus=str(M), factory=str(UID),
+        self.addContinent(factoryNamePrefix + "NewUnits", str(B1ID) + "," + B2ID, bonus=M, factory=UID,
                           factoryType="AutoCapture")
 
     # todo: would be better to have this take a list of collectionBonus, so that it worked
@@ -662,7 +663,7 @@ class WGMap(object):
 
         bordersToMod = []
 
-        def setAttributes( border, attackMod, defenseMod, direction, borderType):
+        def setAttributes(border, attackMod, defenseMod, direction, borderType):
             if (attackMod != None):
                 border.setAttribute("ftattackmod", attackMod)
             if (defenseMod != None):
@@ -1229,7 +1230,6 @@ class WGMap(object):
 
         return borderCounts
 
-
     def getMostBorderedTerritory(self, direction="Two-way"):
         '''
     Returns:
@@ -1258,7 +1258,6 @@ class WGMap(object):
 
         return returnName, maxBorders
 
-
     def getLargestBonusContinent(self):
         '''
     Returns:
@@ -1278,14 +1277,12 @@ class WGMap(object):
 
         return returnName, maxBonus
 
-
     def getContinentMembersFromName(self, continentName):
         for continentElement in self.DOM.getElementsByTagName("continent"):
             if continentElement.getAttribute("name") == continentName:
                 return continentElement.getAttribute("members")
 
         return None
-
 
     def getContinentFromMembers(self, neighborElementList):
         '''
@@ -1301,7 +1298,6 @@ class WGMap(object):
             if set(continentElement.getAttribute("members")) == territoryIDSet:
                 return continentElement
         return None
-
 
     def getContinentsWithTerritory(self, territoryID):
         '''
@@ -1319,17 +1315,14 @@ class WGMap(object):
 
         return continentSet
 
-
     def setBoardName(self, boardName):
         '''
     Sets the "boardname" attribute of the "board" element.
     '''
         self.DOM.getElementsByTagName("board")[0].setAttribute("boardname", str(boardName))
 
-
     def setAvailablePlayers(self, apString):
         self.DOM.getElementsByTagName("board")[0].setAttribute("available_players", str(apString))
-
 
     def setNumAttacks(self, numAttacks):
         '''
@@ -1337,18 +1330,15 @@ class WGMap(object):
     '''
         self.DOM.getElementsByTagName("rules")[0].setAttribute("num_attacks", str(numAttacks))
 
-
     def setFogOverride(self, fogOverride):
         assert fogOverride in ["No", "Yes"]
         self.DOM.getElementsByTagName("rules")[0].setAttribute("fog_override", str(fogOverride))
-
 
     def setNumFortifies(self, numFortifies):
         '''
     Sets the 'num_fortifies' attribute of the 'rules' element.  numFortifies should be a number or 'Unlimited'
     '''
         self.DOM.getElementsByTagName("rules")[0].setAttribute("num_fortifies", str(numFortifies))
-
 
     def setReturnToAttack(self, r2a):
         '''
@@ -1357,14 +1347,12 @@ class WGMap(object):
         assert r2a in ["On", "Off"]
         self.DOM.getElementsByTagName("rules")[0].setAttribute("return_to_attack", r2a)
 
-
     def setReturnToPlace(self, r2p):
         '''
     return_to_placement="Off"
     '''
         assert r2p in ["On", "Off"]
         self.DOM.getElementsByTagName("rules")[0].setAttribute("return_to_placement", r2p)
-
 
     def setFortifyType(self, fortifyType):
         '''
@@ -1373,7 +1361,6 @@ class WGMap(object):
         #  fortify_type="connected"
         #
         self.DOM.getElementsByTagName("rules")[0].setAttribute("fortify_type", fortifyType)
-
 
     @staticmethod
     def calculateSeatBonusBalance(nTerritories, allBonuses, perTerritoryDenom=3, minBonus=3, aggressionFactor=.8):
@@ -1413,7 +1400,6 @@ class WGMap(object):
                     units[six] += keepUnits
                 print("After {} round: {}".format(numRound, units))
 
-
     # not sure how card escalation works, so this doesn't set it.
     # make sure you already have it correct in your original xml
     def setCardBonuses(self, card_start=4, card_increment=2, card_reset=0):
@@ -1422,11 +1408,9 @@ class WGMap(object):
         rules[0].setAttribute("card_increment", str(int(card_increment)))
         rules[0].setAttribute("card-reset", str(int(card_reset)))
 
-
     def setEliminationBonus(self, elimination_bonus):
         rules = self.DOM.getElementsByTagName("rules")
         rules[0].setAttribute("elimination_bonus", str(elimination_bonus))
-
 
     def setSeatBonuses(self, bonuses):
         '''
@@ -1474,20 +1458,17 @@ class WGMap(object):
             if seatNum <= len(bonuses):
                 colorEl.setAttribute("starting_bonus", str(bonuses[seatNum - 1]))
 
-
     def setEliminationBonus(self, bonus):
         '''
     Sets the 'elimination_bonus' attribute of the 'rules' element.  bonus should be a number
     '''
         self.DOM.getElementsByTagName("rules")[0].setAttribute("elimination_bonus", str(int(bonus)))
 
-
     def setMaxCards(self, maxCards):
         '''
     Sets the 'card_max_accrual' attribute of the 'rules' element.  maxCards should be a number or 'Unlimited'
     '''
         self.DOM.getElementsByTagName("rules")[0].setAttribute("card_max_accrual", str(maxCards))
-
 
     def addBordersFromSetToSet(self, fromIDs, toIDs, direction='Two-way',
                                borderType="Default", ftattackmod="0",
@@ -1503,7 +1484,6 @@ class WGMap(object):
                                  ftdefendmin, tfattackmin,
                                  tfdefendmin)
 
-
     def addBordersToSet(self, fromID, toIDs, direction='Two-way',
                         borderType="Default", ftattackmod="0",
                         ftdefendmod="0", tfattackmod="0",
@@ -1516,7 +1496,6 @@ class WGMap(object):
             WGMap.addBorder(self, fromID, toID, direction, borderType, ftattackmod,
                             ftdefendmod, tfattackmod, tfdefendmod, ftattackmin,
                             ftdefendmin, tfattackmin, tfdefendmin)
-
 
     def addBordersViaRegex(self, fromRegex, toRegex, direction="Two-way",
                            borderType="Default", ftattackmod="0",
@@ -1538,7 +1517,6 @@ class WGMap(object):
                         self.addBorder(int(fromElement.getAttribute("tid")), int(toElement.getAttribute("tid")), \
                                        direction, borderType, ftattackmod, ftdefendmod, tfattackmod, \
                                        tfdefendmod, ftattackmin, ftdefendmin, tfattackmin, tfdefendmin)
-
 
     def addBorder(self, fromIdentifier, toIdentifier, direction="Two-way", borderType="Default", ftattackmod="0",
                   ftdefendmod="0", tfattackmod="0",
@@ -1584,7 +1562,6 @@ class WGMap(object):
                                           ftdefendmin, tfattackmin,
                                           tfdefendmin)
 
-
     def __addBorderByName(self, fromName, toName, direction="Two-way",
                           borderType="Default", ftattackmod="0",
                           ftdefendmod="0", tfattackmod="0",
@@ -1603,7 +1580,6 @@ class WGMap(object):
                                         tfdefendmod, ftattackmin,
                                         ftdefendmin, tfattackmin,
                                         tfdefendmin)
-
 
     def __addBorderByID(self, fromid, toid, direction="Two-way",
                         borderType="Default", ftattackmod="0",
@@ -1649,7 +1625,6 @@ class WGMap(object):
         else:
             bordersElements[0].appendChild(newBorderElement)
 
-
     def addTerritory(self, name, xpos, ypos, maxUnits="0", **kwargs):
         '''
     Adds a territory.  Arguments correspond to attributes of the new territory element.
@@ -1692,7 +1667,6 @@ class WGMap(object):
 
         return maxTID;
 
-
     def addContinentFromElements(self, continentName, territoryElementList, bonus=1):
         '''
     Adds a continent.  Arguments correspond to attributes of the new continent element.
@@ -1708,7 +1682,6 @@ class WGMap(object):
         territoryIDsString = ",".join(territoryIDList)
         self.addContinent(continentName, territoryIDsString, bonus)
 
-
     def addContinent(self, continentName, memberIDs, bonus=1, factory=-1, factoryType="Standard"):
         '''
     factoryType = ["Standard","AutoCapture","Universal"]
@@ -1723,7 +1696,6 @@ class WGMap(object):
         else:
             self.addContinentFromMemberIDSet(continentName, memberIDs, bonus, factory, factoryType)
 
-
     def addContinentFromMemberIDSet(self, continentName, memberIDSet, bonus=1, factory=-1, factoryType="Standard"):
         print(memberIDSet)
         memberIDString = ""
@@ -1731,7 +1703,6 @@ class WGMap(object):
             memberIDString += ("," + str(tid))
 
         self.addContinentFromMemberIDString(continentName, memberIDString[1:], bonus, factory, factoryType)
-
 
     def addContinentFromMemberIDString(self, continentName, memberIDsString, bonus=1, factory=-1,
                                        factoryType="Standard"):
@@ -1761,7 +1732,6 @@ class WGMap(object):
             continentsElements[0].appendChild(newContinentElement)
 
         # print "Adding Continent",newContinentElement.toprettyxml()
-
 
     def addRotatingFactories(self, **kwargs):
         '''
@@ -1798,7 +1768,6 @@ class WGMap(object):
             self.addContinent(continentName + "-ON", tid1, +1, tid2, "AutoCapture")
             self.addContinent(continentName + "-OFF", tid1, -1, tid1, "AutoCapture")
 
-
     def printBorderDistributionTable(self):
         '''
     Prints a table to show how many territories there are with N borders.
@@ -1811,7 +1780,6 @@ class WGMap(object):
         for ixBorder in range(0, maxB + 1):
             print(repr(ixBorder).rjust(8), ' |', repr(self.countTerritoriesWithBorders(ixBorder)).rjust(6))
 
-
     def printContinentBonusDistributionTable(self):
         '''
     Prints a table to show how many continents there are with a bonus of N.
@@ -1823,14 +1791,12 @@ class WGMap(object):
         for ixBonus in range(0, maxB + 1):
             print(repr(ixBonus).rjust(6), ' |', repr(self.countContinentsWithBonus(ixBonus)).rjust(6))
 
-
     def printStatistics(self):
         '''
     Print some statistics about a map.
     '''
         print("Map Name:", self.DOM.getElementsByTagName("board")[0].getAttribute("boardname"))
         print("# of Territories:", len(self.DOM.getElementsByTagName("territory")))
-
 
         print("# of Continents:", len(self.DOM.getElementsByTagName("continent")))
         print("# of Borders:", len(self.DOM.getElementsByTagName("border")))
@@ -1851,7 +1817,6 @@ class WGMap(object):
 
         # todo: check that return value is rounding correctly
 
-
     def calculateTotalTerritoryBonus(self):
         ''' calculateTotalTerritoryBonus '''
         territoryCount = len(self.DOM.getElementsByTagName("territory"))
@@ -1862,11 +1827,9 @@ class WGMap(object):
             # sometimes we get back "disabled" which will not turn into an int.
             return 0
 
-
     def calculateTotalBoardBonus(self):
         ''' calculateTotalBoardBonus '''
         return self.calculateTotalContinentBonus() + self.calculateTotalTerritoryBonus()
-
 
     '''  Never finished this.  Instead it would be useful to have functions that calculate graph properties like:
     * http://en.wikipedia.org/wiki/Centrality
@@ -1902,7 +1865,6 @@ class WGMap(object):
 
         return count;
 
-
     # count how many continents have numBonus
     def countContinentsWithBonus(self, numBonus):
         ''' '''
@@ -1915,7 +1877,6 @@ class WGMap(object):
                 count += 1
 
         return count;
-
 
     def doTheyBorder(self, ID1, ID2):
         '''
@@ -1938,7 +1899,6 @@ class WGMap(object):
         # print "border not found"
         return False
 
-
     def deleteTerritory(self, identifier):
         '''
     Delete a territory.
@@ -1956,13 +1916,11 @@ class WGMap(object):
             # must be a name
             return self.__deleteTerritoryByName(identifier)
 
-
     def __deleteTerritoryByName(self, territoryName):
         for territory in self.DOM.getElementsByTagName("territory"):
             if (territory.getAttribute("name") == territoryName):
                 return self.__deleteTerritoryByID(territory.getAttribute("tid"))
         return False
-
 
     def __deleteTerritoryByID(self, territoryID):
         '''
@@ -1981,7 +1939,6 @@ class WGMap(object):
                 found = True
                 territoryElement.parentNode.removeChild(territoryElement)
                 territoryElement.unlink()
-
 
         if not found:
             return False
@@ -2017,7 +1974,6 @@ class WGMap(object):
 
         return True
 
-
     def deleteEmptyContinents(self):
         '''
     Find all continents with no members
@@ -2027,7 +1983,6 @@ class WGMap(object):
             if (len(continentElement.getAttribute("members")) == 0):
                 continentsElement.removeChild(continentElement)
                 continentElement.unlink()
-
 
     def deleteBorder(self, id1, id2):
         print("deleting", id1, id2)
@@ -2041,7 +1996,6 @@ class WGMap(object):
                 borderElement.unlink()
                 print("deleted")
 
-
     def deleteAllBorders(self):
         bordersElement = self.DOM.getElementsByTagName("borders")[0]
         for borderElement in self.DOM.getElementsByTagName("border"):
@@ -2051,7 +2005,6 @@ class WGMap(object):
         WarGearXMLElement = self.DOM.getElementsByTagName("WarGearXML")[0]
         WarGearXMLElement.removeChild(bordersElement)
 
-
     def deleteAllTerritories(self):
         territoriesElement = self.DOM.getElementsByTagName("territories")[0]
         for territoryElement in self.DOM.getElementsByTagName("territory"):
@@ -2060,7 +2013,6 @@ class WGMap(object):
 
         WarGearXMLElement = self.DOM.getElementsByTagName("WarGearXML")[0]
         WarGearXMLElement.removeChild(territoriesElement)
-
 
     def deleteContinent(self, continentName):
         continentsElements = self.DOM.getElementsByTagName("continents")
@@ -2072,7 +2024,6 @@ class WGMap(object):
                 continentsElement.removeChild(continentElement)
                 continentElement.unlink()
 
-
     def deleteAllContinents(self, fullDelete=True):
         continentsElements = self.DOM.getElementsByTagName("continents")
         if len(continentsElements) == 0:
@@ -2081,7 +2032,6 @@ class WGMap(object):
         for continentElement in self.DOM.getElementsByTagName("continent"):
             continentsElement.removeChild(continentElement)
             continentElement.unlink()
-
 
         if (fullDelete):
             WarGearXMLElement = self.DOM.getElementsByTagName("WarGearXML")[0]
@@ -2203,7 +2153,6 @@ class SquareGridWGMap(WGMap):
         raise Exception  # we should never get here
         # return False
 
-
     def createTerritories(self, xOrigin=10, yOrigin=10, xOffset=20, yOffset=20):
         '''
         Args:
@@ -2219,7 +2168,6 @@ class SquareGridWGMap(WGMap):
                 self.addTerritory(territoryName, str(xpos), str(ypos))
                 ypos += yOffset
             xpos += xOffset
-
 
     def createBlockContinents(self, bonus):
         '''
@@ -2247,7 +2195,6 @@ class SquareGridWGMap(WGMap):
 
                 self.addContinentFromElements(self.getTerritoryName(uly, ulx), territoryElements, bonus)
 
-
     def getTerritoryName(self, row, col):
         '''
     Calculate the territory name from arguments
@@ -2257,11 +2204,9 @@ class SquareGridWGMap(WGMap):
         else:
             return str(row) + "_" + str(col)
 
-
     def getRC(self, territoryElement):
         territoryName = territoryElement.getAttribute("name")
         return list(map(int, territoryName.split("_")))
-
 
     def getTerritoryElement(self, territoryIdentifier):
         # print "MazeWGMap.getTerritoryElement() called with",territoryIdentifier
@@ -2283,7 +2228,6 @@ class SquareGridWGMap(WGMap):
             # print "getting territory element by name",identifier
             return WGMap.getTerritoryElement(self, territoryIdentifier)
 
-
     def addOneWayBordersFromBaseTerritoryID(self, baseID, RC, brange=1, attackBonus=0, defenseBonus=0):
         '''
     RC - row column of source of borders
@@ -2292,7 +2236,6 @@ class SquareGridWGMap(WGMap):
         #  pass
         # self.addBorder(baseID, toID, "One-way", borderType = "Default", attackBonus.str(),
         #            defenseBonus.str())
-
 
     def addBordersViaRegex(self, ULRC, LRRC):
         '''
@@ -2306,7 +2249,6 @@ class SquareGridWGMap(WGMap):
             for col in range(ULC, LRC):
                 self.addBorder((row, col), (row + 1, col))
                 self.addBorder((row, col), (row, col + 1))
-
 
     def addBorder(self, fromRC, toRC):
         print("SquareGridWGMap.addBorder():", fromRC, toRC)
@@ -2329,7 +2271,6 @@ class SquareGridWGMap(WGMap):
             # print "getting territory element by name",identifier
             return WGMap.addBorder(self, fromRC, toRC)
 
-
     def doTheyBorder(self, fromRC, toRC):
         # if this is a string, we want to make sure we don't think
         # it is our r,c tuple
@@ -2351,7 +2292,6 @@ class SquareGridWGMap(WGMap):
             # print "getting territory element by name",identifier
             return WGMap.doTheyBorder(self, fromRC, toRC)
 
-
     def addBorderToCoordinate(self, fromID, toRow, toCol):
         '''
     Add a border between fromID and the continent at toRow,toCol
@@ -2360,7 +2300,6 @@ class SquareGridWGMap(WGMap):
             toTerritoryName = self.getTerritoryName(toRow, toCol)
             toID = self.getTerritoryIDFromName(toTerritoryName)
             self.addBorder(fromID, toID)
-
 
     # todo: this is not finished
     def addSquareBorders(self):
@@ -3024,7 +2963,6 @@ def setupTWBB():
                            wgmap.getTerritoryIDFromName(oilWell), "Universal")
         territoryIDs.remove(depositID)
 
-
     wgmap.saveMapToFile('//DISKSTATION/data/wargear development/ThereWillBeBlood/There Will Be Blood!Out.xml', False)
 
 
@@ -3050,7 +2988,6 @@ def testWGAME():
 def setupDFMap():
     wgmap = WGMap()
     wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/darkness falls/Darkness Falls.xml')
-
 
     targetList = ["Kill Factory 1", "Kill Factory 2", "Kill Factory 3", "Kill Factory 4", "Kill Factory 5",
                   "Kill Factory 6"]
