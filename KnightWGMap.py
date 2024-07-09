@@ -113,7 +113,7 @@ class KnightWGMap(SquareGridWGMap):
     self.createPNGs(filePath, rowHeight, colWidth, 
                              xOrigin, yOrigin, territoriesDeleted)
 
-    self.saveMapToFile(filePath + ".xml")
+    self.save_map_to_file(filePath + ".xml")
 
 
     return True
@@ -178,7 +178,7 @@ class KnightWGMap(SquareGridWGMap):
     self.createPNGs(filePath, rowHeight, colWidth, 
                              xOrigin, yOrigin, territoriesDeleted)
 
-    self.saveMapToFile(filePath + ".xml")
+    self.save_map_to_file(filePath + ".xml")
 
 
 
@@ -451,7 +451,7 @@ class KnightWGMap(SquareGridWGMap):
     self.createPNG(filePath, self.rows, self.cols, rowHeight, colWidth, 
                              xOrigin, yOrigin, territoriesDeleted)
 
-    self.saveMapToFile(filePath + ".xml")
+    self.save_map_to_file(filePath + ".xml")
     if (self.checkOneTerritoryCanReachAll() == False):
           return False
 
@@ -483,7 +483,7 @@ class KnightWGMap(SquareGridWGMap):
       xpos += xOffset
  
   def genGeoNeighbors(self,territoryID):
-    name = self.getTerritoryNameFromID(territoryID)
+    name = self.get_territory_name_from_ID(territoryID)
     (row,col) = name.split("_")     
     print(name,row,col)
     for x in self.genGeoNeighborsRC(int(row),int(col)):
@@ -510,7 +510,7 @@ class KnightWGMap(SquareGridWGMap):
 
 
   def getRCFromID(self,territoryID):
-    name = self.getTerritoryNameFromID(territoryID)
+    name = self.get_territory_name_from_ID(territoryID)
     (row,col) = name.split("_")   
     return [row,col]
   
@@ -583,7 +583,7 @@ class KnightWGMap(SquareGridWGMap):
       name = "chain"
       members = set()
       for link in chain:
-        name += "." + self.getTerritoryNameFromID(link)
+        name += "." + self.get_territory_name_from_ID(link)
         members.add(link)
       #print "adding",name
       self.addContinent(name,members,bonus=value)
@@ -717,7 +717,7 @@ class KnightWGMap(SquareGridWGMap):
     self.createPNGs(filePath, rowHeight, colWidth, 
                              xOrigin, yOrigin, territoriesDeleted)
     #print filePath + ".xml"
-    self.saveMapToFile(filePath + ".xml")
+    self.save_map_to_file(filePath + ".xml")
     print(filePath + ".xml")
     #print filePath + ".xml"
 
@@ -898,9 +898,9 @@ class KnightWGMap(SquareGridWGMap):
 def addKnightViewBorders():
   wgmap = WGMap()
   
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Knights Tour/Knights Tour NxN - 20x20 - Random.xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Knights Tour/Knights Tour NxN - 20x20 - Random.xml')
   wgmap.addViewBordersToNeighbors(2)
-  wgmap.saveMapToFile('//DISKSTATION/data/wargear development/Knights Tour/Knights Tour NxN - 20x20 - Random - Out.xml',False)
+  wgmap.save_map_to_file('//DISKSTATION/data/wargear development/Knights Tour/Knights Tour NxN - 20x20 - Random - Out.xml', False)
   
 
   '''
@@ -968,7 +968,7 @@ def addKnightViewBorders():
 def createRandomKnightTour():
   ''' Create a Knight Tour's map '''
   wgmap = KnightWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Knights Tour/Knight\'s Tour(1).xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Knights Tour/Knight\'s Tour(1).xml')
   #  wgmap.setKnightIcons('//DISKSTATION/data/wargear development/Knights Tour/WhiteKnightIcon34.png',
   #                     '//DISKSTATION/data/wargear development/Knights Tour/BlackKnightIcon34.png')
 
@@ -1012,7 +1012,7 @@ def createCellsKnightTour():
   ''' Create a Knight Tour's map '''
   wgmap = KnightWGMap()
   
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Knights Tour/Knight\'s Tour(1).xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Knights Tour/Knight\'s Tour(1).xml')
   wgmap.setMoreerKnightIcons( '//DISKSTATION/data/wargear development/Knights Tour/PlayerKnightLightWood45.png',
                             '//DISKSTATION/data/wargear development/Knights Tour/PlayerKnightDarkWood45.png',
                             '//DISKSTATION/data/wargear development/Knights Tour/WoodWhite45.png',
@@ -1035,7 +1035,7 @@ def createCellsKnightTour():
 def createVerticalStripesKnightsTour():
   ''' Create a Knight Tour's map '''
   wgmap = KnightWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Knights Tour/Knights Tour NxN - 16x16 - Stripes.xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Knights Tour/Knights Tour NxN - 16x16 - Stripes.xml')
   wgmap.setKnightIcons('//DISKSTATION/data/wargear development/Knights Tour/WhiteKnightIcon34.png',
                        '//DISKSTATION/data/wargear development/Knights Tour/BlackKnightIcon34.png')
 
@@ -1055,7 +1055,7 @@ def createVerticalStripesKnightsTour():
 def createSnakesGame():
   ''' Create a Knight Tour's map '''
   wgmap = KnightWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Knights Tour/Knights Tour NxN - 20^2 - Random Snake.xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Knights Tour/Knights Tour NxN - 20^2 - Random Snake.xml')
   wgmap.setKnightIcons('//DISKSTATION/data/wargear development/Knights Tour/WhiteKnightIcon34.png',
                        '//DISKSTATION/data/wargear development/Knights Tour/BlackKnightIcon34.png')
 
@@ -1075,7 +1075,7 @@ def createSnakesGame():
 def createFunctionCellGame():
   ''' Create a Knight Tour's map '''
   wgmap = KnightWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Knights Tour/Knight\'s Tour(1).xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Knights Tour/Knight\'s Tour(1).xml')
   wgmap.setMoreerKnightIcons( '//DISKSTATION/data/wargear development/Knights Tour/PlayerKnightLightWood45.png',
                             '//DISKSTATION/data/wargear development/Knights Tour/PlayerKnightDarkWood45.png',
                             '//DISKSTATION/data/wargear development/Knights Tour/WoodWhite45.png',
@@ -1100,7 +1100,7 @@ def createFunctionCellGame():
 def createFunctionFourSquareGame():
   ''' Create a Knight Tour's map '''
   wgmap = KnightWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Knights Tour/Knight\'s Tour(1).xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Knights Tour/Knight\'s Tour(1).xml')
   wgmap.setMoreerKnightIcons( '//DISKSTATION/data/wargear development/Knights Tour/PlayerKnightLightWood45.png',
                             '//DISKSTATION/data/wargear development/Knights Tour/PlayerKnightDarkWood45.png',
                             '//DISKSTATION/data/wargear development/Knights Tour/WoodWhite45.png',
@@ -1125,7 +1125,7 @@ def createFunctionFourSquareGame():
 def createStripesGame():
   ''' Create a Knight Tour's map '''
   wgmap = KnightWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Knights Tour/Knight\'s Tour(1).xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Knights Tour/Knight\'s Tour(1).xml')
   wgmap.setMoreerKnightIcons( '//DISKSTATION/data/wargear development/Knights Tour/PlayerKnightLightWood45.png',
                             '//DISKSTATION/data/wargear development/Knights Tour/PlayerKnightDarkWood45.png',
                             '//DISKSTATION/data/wargear development/Knights Tour/WoodWhite45.png',
@@ -1149,7 +1149,7 @@ def createStripesGame():
     
 def createStringGame():
   wgmap = KnightWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Knights Tour/KnightsTour.xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Knights Tour/KnightsTour.xml')
   wgmap.setMoreerKnightIcons( '//DISKSTATION/data/wargear development/Knights Tour/PlayerKnightLightWood45.png',
                             '//DISKSTATION/data/wargear development/Knights Tour/PlayerKnightDarkWood45.png',
                             '//DISKSTATION/data/wargear development/Knights Tour/WoodWhite45.png',
@@ -1220,7 +1220,7 @@ _______K_________K____________K_
 def createGridGame():
   ''' Create a Knight Tour's map '''
   wgmap = KnightWGMap()
-  wgmap.loadMapFromFile('//BHO/data/wargear development/Knights Tour/Knights Tour NxN - 12x12 - Grid.xml')
+  wgmap.load_map_from_file('//BHO/data/wargear development/Knights Tour/Knights Tour NxN - 12x12 - Grid.xml')
   wgmap.setKnightIcons('//BHO/data/wargear development/Knights Tour/WhiteKnightIcon34.png',
                        '//BHO/data/wargear development/Knights Tour/BlackKnightIcon34.png')
 

@@ -572,14 +572,14 @@ class TechWGMap(WGMap):
   
 def fixFBorders():
   wgmap = TechWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Technology/Invention(6).xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Technology/Invention(6).xml')
   for border in wgmap.DOM.getElementsByTagName("border"):
  
     if (border.getAttribute("type") =="Fortify"):
       print("borderbetween",border.getAttribute("fromid"),border.getAttribute("toid"))
       border.setAttribute("type","Fortify Only")
     
-  wgmap.saveMapToFile('//DISKSTATION/data/wargear development/Technology/InventionOut.xml',False)
+  wgmap.save_map_to_file('//DISKSTATION/data/wargear development/Technology/InventionOut.xml', False)
   
   
   
@@ -587,13 +587,13 @@ def fixFBorders():
 def setupTechMap():
     
   wgmap = TechWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Invention/Invention - Default(10).xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Invention/Invention - Default(10).xml')
   wgmap.doFullSetup()
-  wgmap.saveMapToFile('//DISKSTATION/data/wargear development/Invention/InventionOut.xml',False)
+  wgmap.save_map_to_file('//DISKSTATION/data/wargear development/Invention/InventionOut.xml', False)
 
 def addTechFlaskFortifies():
   wgmap = TechWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Invention/Invention - Default(11).xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Invention/Invention - Default(11).xml')
   wgmap.debug = True
   for civ in ["USA","China","UK","Africa"]:
     Granary = wgmap.getTerritoryIDFromName(civ + " Granary")
@@ -648,11 +648,11 @@ def addTechFlaskFortifies():
     wgmap.addBorder(ICBM,Espionage,borderType="Fortify Only")
     wgmap.addBorder(NuclearICBM,Assasination,borderType="Fortify Only")
     
-  wgmap.saveMapToFile('//DISKSTATION/data/wargear development/Invention/InventionOut.xml',False)
+  wgmap.save_map_to_file('//DISKSTATION/data/wargear development/Invention/InventionOut.xml', False)
 
 def addTechFlaskContinents():
   wgmap = TechWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Technology/Invention(7).xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Technology/Invention(7).xml')
   wgmap.debug = True
   flaskTerritories = set()
   # need to make these ints before adding - getTerritoryNameFromIDs, thinks 65 is 6,5
@@ -691,19 +691,19 @@ def addTechFlaskContinents():
       print("adding",a,IDSet2)
       IDSet2.remove(a)
       #import pdb; pdb.set_trace()
-      aName = wgmap.getTerritoryNameFromID(a)
-      cName = wgmap.getTerritoryNameFromID(capital)
+      aName = wgmap.get_territory_name_from_ID(a)
+      cName = wgmap.get_territory_name_from_ID(capital)
       name = cName + " Tech - " + aName
       #print name
       wgmap.addContinent( name ,set([a]),individualBonus,flask)
       for b in IDSet2:
-        bName = wgmap.getTerritoryNameFromID(b)        
+        bName = wgmap.get_territory_name_from_ID(b)
         abName = cName + " Tech" + " - " + aName + " and " + bName
         #print abName 
         wgmap.addContinent(abName,set([a,b,capital]),pairBonus,flask)
         
         
-  wgmap.saveMapToFile('//DISKSTATION/data/wargear development/Technology/InventionOut.xml',False)
+  wgmap.save_map_to_file('//DISKSTATION/data/wargear development/Technology/InventionOut.xml', False)
 
     
 

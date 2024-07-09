@@ -455,9 +455,9 @@ class MULEWGMap(WGMap):
       
 def setupMuleMap():
   wgmap = MULEWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/MULE/M.U.L.E.(6).xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/MULE/M.U.L.E.(6).xml')
   wgmap.doSetup()
-  wgmap.saveMapToFile('//DISKSTATION/data/wargear development/MULE/Out.xml',False)
+  wgmap.save_map_to_file('//DISKSTATION/data/wargear development/MULE/Out.xml', False)
 
     
     

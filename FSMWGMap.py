@@ -294,11 +294,11 @@ class FSMWGMap(WGMap):
        
 def setupFSMMap():
   wgmap = FSMWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Finite State Machine/Finite State Machine(6).xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Finite State Machine/Finite State Machine(6).xml')
   #wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/LEGO/Hoarding LEGO.xml')
 
   wgmap.doFullSetup()
-  wgmap.saveMapToFile('//DISKSTATION/data/wargear development/Finite State Machine/out.xml',False)
+  wgmap.save_map_to_file('//DISKSTATION/data/wargear development/Finite State Machine/out.xml', False)
  
 
 

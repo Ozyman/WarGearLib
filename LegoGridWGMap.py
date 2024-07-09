@@ -624,7 +624,7 @@ make placeable.
 
 def setupLegoHordesMap():
   wgmap = LegoGridWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/LEGO/Hoarding LEGO(4).xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/LEGO/Hoarding LEGO(4).xml')
   #wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/LEGO/Hoarding LEGO.xml')
   
   
@@ -639,7 +639,7 @@ def setupLegoHordesMap():
   wgmap.createHordesMap()
   wgmap.printGrid()
   wgmap.createPNG('//DISKSTATION/data/wargear development/LEGO/out')
-  wgmap.saveMapToFile('//DISKSTATION/data/wargear development/LEGO/out.xml')
+  wgmap.save_map_to_file('//DISKSTATION/data/wargear development/LEGO/out.xml')
  
  
  
@@ -651,7 +651,7 @@ def setupLegoDuelMap():
   
   wgmap = LegoGridWGMap()
   #wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/LEGO/LFB template - '+mtype+'(4).xml')
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/LEGO/LFB template - Expert.xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/LEGO/LFB template - Expert.xml')
 
   wgmap.upperLeftX = 197
   wgmap.upperLeftY = 20
@@ -675,7 +675,7 @@ def setupLegoDuelMap():
     
   wgmap.printGrid()
   wgmap.createPNG('//DISKSTATION/data/wargear development/LEGO/out')
-  wgmap.saveMapToFile('//DISKSTATION/data/wargear development/LEGO/out.xml',False)
+  wgmap.save_map_to_file('//DISKSTATION/data/wargear development/LEGO/out.xml', False)
  
   
 

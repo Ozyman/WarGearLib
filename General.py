@@ -16,6 +16,7 @@ import networkx as nx
 # import matplotlib.pyplot as plt
 # import noise
 import csv
+import pickle
 
 # from . import KnightWGMap
 # import KnightWGMap
@@ -25,7 +26,8 @@ import csv
 '''
 :module: WGLib
 :platform: Unix, Windows
-:synopsis: The WGLib module gives access to the WGMap base class as well as more specialized children.  These classes are used to create, load, modify & save War Gear Maps (XML & PNG files).
+:synopsis: The WGLib module gives access to the WGMap base class as well as more specialized children.  
+These classes are used to create, load, modify & save War Gear Maps (XML & PNG files).
 
 .. moduleauthor:: Ozyman
 
@@ -64,41 +66,42 @@ class WGMap(object):
         self.debug = False
         self.filePath = None
 
-    def saveMapToFile(self, filePath, printStats=True):
+    def save_map_to_file(self, file_path, print_stats=True):
         """
         Save the XML.
 
         Args:
-          filePath (str):
+          file_path (str):
+          print_stats(bool): optional stats printed when file is saved.
 
             saveMapToFile(//SERVER/path/to/map/MapName.xml)
         """
         # if(printStats):
         #  self.printStatistics()
-        # print "writing to: ", filePath
-        self.filePath = filePath
-        file_handle = open(filePath, 'w')
-        # print "DOM: ",self.DOM.toxml()
+        # print("writing to: ", filePath
+        self.filePath = file_path
+        file_handle = open(file_path, 'w')
+        # print("DOM: ",self.DOM.toxml()
         file_handle.write(self.DOM.toxml())
         file_handle.close()
-        if (printStats):
+        if print_stats:
             self.printStatistics()
 
-    def writeXML(self):
+    def write_XML(self):
         """
     Write XML to output
     """
         stdout.write(self.DOM.toxml())
 
-    def loadMapFromXMLString(self, xml):
+    def load_map_from_XML_string(self, xml):
         """
     Hope this works!
     @todo can I combine this with loadMapFromFile & ducktype/autodetect?
     """
-        self.filepath = None
+        self.filePath = None
         self.DOM = parseString(xml)
 
-    def loadMapFromFile(self, filePath):
+    def load_map_from_file(self, file_path):
         """
     Loads the state of a map from an XML document.
 
@@ -106,15 +109,15 @@ class WGMap(object):
     filePath (str):
 
     """
-        self.filePath = filePath
-        fileHandle = open(filePath)
+        self.filePath = file_path
+        fileHandle = open(file_path)
         self.DOM = parse(fileHandle)
 
-    def printDOM(self):
-        """Print the DOM to stdout in XML format."""
+    def print_DOM(self):
+        """print(the DOM to stdout in XML format."""
         print(self.DOM.toprettyxml())
 
-    def createBoard(self, boardName, version_maj="1", version_min="0", min_players="2",
+    def createBoard(self, board_name, version_maj="1", version_min="0", min_players="2",
                     max_players="16",
                     available_players="2,3,4,5,7,8,9,10,12,13,14,15,16",
                     gameplay_type="Turn Based"):
@@ -131,7 +134,7 @@ class WGMap(object):
         self.DOM.appendChild(newWGXMLElement)
 
         newBoardElement = self.DOM.createElement("board")
-        newBoardElement.setAttribute("boardname", str(boardName))
+        newBoardElement.setAttribute("boardname", str(board_name))
         newBoardElement.setAttribute("version_major", str(version_maj))
         newBoardElement.setAttribute("version_minor", str(version_min))
         newBoardElement.setAttribute("min_players", str(min_players))
@@ -148,10 +151,10 @@ class WGMap(object):
         territories that are connected via each border.  If two trees
         are independent, then return a list of the sizes of each independent branch.
         '''
-        borderTids = self.getBorderTidsByTid(tid)
+        border_tids = self.getBorderTidsByTid(tid)
 
         branchesTids = []
-        for btid in borderTids:
+        for btid in border_tids:
             be2check = set()
             for btid2 in self.getBorderTidsByTid(btid):
                 be2check.add(btid2)
@@ -202,25 +205,25 @@ class WGMap(object):
 
         if territoryID == None:
             territoryID = self.DOM.getElementsByTagName("territory")[0].getAttribute("tid")
-        # print "territoryID",territoryID
+        # print("territoryID",territoryID
         territoriesReached = set(territoryID)
-        # print "territoriesReached",territoriesReached
+        # print("territoriesReached",territoriesReached
         territoriesToCheck = set()  # territories that have neighbors we may not have looked at yet
 
         # account for neighbors of first territory
         territoriesToCheck |= self.getNeighborIDsFromID(territoryID)
 
-        # print "territoriesToCheck", territoriesToCheck
+        # print("territoriesToCheck", territoriesToCheck
         while len(territoriesToCheck) > 0:
             # get a territory to check/reach
             territoryID = territoriesToCheck.pop()
-            # print "looking at",territoryID
+            # print("looking at",territoryID
             # find all of it's neighbors
             neighbors = self.getNeighborIDsFromID(territoryID)
-            # print "neighbors", neighbors
+            # print("neighbors", neighbors
             # add any newly available territories
             territoriesToCheck |= (neighbors - territoriesReached)
-            # print "territoriesToCheck", territoriesToCheck
+            # print("territoriesToCheck", territoriesToCheck
 
             territoriesReached.add(territoryID)
 
@@ -253,11 +256,11 @@ class WGMap(object):
         # self.printDOM()
         territoryIDAndValue = {}
         for continent in self.DOM.getElementsByTagName("continent"):
-            # print continent.getAttribute("members")
+            # print(continent.getAttribute("members")
             if (len(continent.getAttribute("members").split(',')) == 1):
                 territoryIDAndValue[continent.getAttribute("members")] = territoryIDAndValue.get(
                     continent.getAttribute("members"), 0) + int(continent.getAttribute("bonus"))
-                # print "adding",continent.getAttribute("members")
+                # print("adding",continent.getAttribute("members")
 
         for tid in list(territoryIDAndValue.keys()):
             territoryElement = self.getTerritoryElement(tid)
@@ -287,14 +290,17 @@ class WGMap(object):
         # fileHandle = open(self.filePath)
         # originalDOM = parse(fileHandle)
         setrecursionlimit(15000)
-        originalDOM = deepcopy(self.DOM)
+        originalDOM = pickle.loads(pickle.dumps(self.DOM))
+
+        # This wasn't working anymore?  I dunno why - it would just exit with some big number code.
+        # originalDOM = deepcopy(self.DOM)
         newDOM = self.DOM
 
         for t in self.DOM.getElementsByTagName("territory"):
             if (None == re.search(baseRegex, t.getAttribute("name"))):
                 continue
             tid = t.getAttribute("tid")
-            # print "working on tid:",tid
+            # print("working on tid:",tid
 
             self.DOM = originalDOM
             twoDist = self.getAllTerritoriesWithinNBorders(tid, nDistance,
@@ -314,25 +320,25 @@ class WGMap(object):
         chains = set()
         for base in baseIDSet:
             neighbors = self.getNeighborIDsFromID(base)
-            logstr = "found neighbors for {}".format(self.getTerritoryNameFromID(base))
+            logstr = "found neighbors for {}".format(self.get_territory_name_from_ID(base))
             for neighbor in neighbors:
                 chain = frozenset([neighbor, base])
-                logstr += ": <{}>".format(self.getTerritoryNameFromID(neighbor))
+                logstr += ": <{}>".format(self.get_territory_name_from_ID(neighbor))
                 chains.add(chain)
-            # print logstr
+            # print(logstr
 
         for chain in chains:
             name = basename
             members = set()
             for link in chain:
-                name += "." + self.getTerritoryNameFromID(link)
+                name += "." + self.get_territory_name_from_ID(link)
                 members.add(link)
             if factory != -1 and not factory in members:
                 members.add(factory)
-                name += " -> " + self.getTerritoryNameFromID(factory)
+                name += " -> " + self.get_territory_name_from_ID(factory)
             logstr = "adding chain:"
             for m in members:
-                logstr += " <{}>".format(self.getTerritoryNameFromID(m))
+                logstr += " <{}>".format(self.get_territory_name_from_ID(m))
             print(logstr)
             self.addContinent(name, members, bonus=value, factory=factory)
 
@@ -366,45 +372,48 @@ class WGMap(object):
                 # This is the function that makes all the continents.
 
     # You give it a bunch of values (arguments), and they tell it how to add the factories.
-    def addFixedBonusContinents2(self, baseIDSet, memberIDSet, fixedBonus, factoryType, CNPrefix, neighborDistance,
-                                 factoryTarget, borderTypesAllowed=["Default", "Attack Only"]):
+    def addFixedBonusContinents2(self, baseIDSet, memberIDSet, fixedBonus, factory_type, CNPrefix, neighbor_distance,
+                                 factoryTarget, border_types_allowed=None):
+        if border_types_allowed is None:
+            border_types_allowed = ["Default", "Attack Only"]
 
-        # print the values that were passed in (just for debug purposes i.e. to check how things are going so far)
+        # print(the values that were passed in (just for debug purposes i.e. to check how things are going so far)
+
         print("addFixedBonusContinents called:")
         print("\t BaseIDSet:", baseIDSet)
         print("\t MemberIDSet:", memberIDSet)
         print("\t FixedBonus:", fixedBonus)
-        print("\t FactoryType:", factoryType)
+        print("\t FactoryType:", factory_type)
         print("\t CNPrefix:", CNPrefix)
-        print("\t NeighborDistance:", neighborDistance)
+        print("\t NeighborDistance:", neighbor_distance)
         print("\t FactoryTarget:", factoryTarget)
 
         for baseID in baseIDSet:
 
             # a negative neighbor distance means use all neighbors, otherwise find the neighbors in range
-            if (neighborDistance >= 0):
-                neighbors = self.getAllTerritoriesWithinNBorders(baseID, neighborDistance,
-                                                                 borderTypesAllowed=borderTypesAllowed)
+            if (neighbor_distance >= 0):
+                neighbors = self.getAllTerritoriesWithinNBorders(baseID, neighbor_distance,
+                                                                 borderTypesAllowed=border_types_allowed)
 
             else:
                 neighbors = self.getTerritoryIDsFromNameRegex(".*")
 
-            possibleMembers = []
+            possible_members = []
             for n in neighbors:
                 if memberIDSet == None or n in memberIDSet:
-                    possibleMembers.append(n)
+                    possible_members.append(n)
 
             # numberOfNeighbors will 1st be 1, then 2, up to the total # of
             # possibleMembers
-            for numberOfNeighbors in range(len(possibleMembers)):
+            for numberOfNeighbors in range(len(possible_members)):
 
-                for members in itertools.combinations(possibleMembers, numberOfNeighbors):
+                for members in itertools.combinations(possible_members, numberOfNeighbors):
                     # get value based on # of members
                     value = 1
                     if members.size() % 2 == 0:
                         value *= -1
 
-                    if (CNPrefix != None):
+                    if CNPrefix != None:
                         name = CNPrefix
                     else:
                         name = "FIXEDBONUS-"
@@ -416,7 +425,7 @@ class WGMap(object):
                         # def addContinent(self, continentName, memberIDs, bonus=1,factory=-1,factoryType="Standard"):
                         # '''
                         # factoryType = ["Standard","AutoCapture","Universal"]
-                        self.addContinent(name, members.append(baseID), value * fixedBonus, factoryTarget, factoryType)
+                        self.addContinent(name, members.append(baseID), value * fixedBonus, factoryTarget, factory_type)
 
     # for tid in targetIDList:
     #
@@ -493,7 +502,7 @@ class WGMap(object):
 
     # todo: would be better to have this take a list of collectionBonus, so that it worked
     # for a more general case, instead of only for pair-wise collections.
-    def addCollectorContinents(self, IDSet, individualBonus="1", pairBonus="1", factory=None, nameSuffix=None,
+    def addCollectorContinents(self, IDSet, individualBonus=1, pairBonus=1, factory=None, nameSuffix=None,
                                additionalMembers=None, factoryType="Standard"):
 
         individualBonus = str(individualBonus)
@@ -513,57 +522,57 @@ class WGMap(object):
                 members.extend(additionalMembers)
             if int(individualBonus) != 0:
                 if factory != None:
-                    self.addContinent(aName, members, individualBonus, factory=factory, factoryType=factoryType)
+                    self.addContinent(aName, members, int(individualBonus), factory=factory, factoryType=factoryType)
                 else:
-                    self.addContinent(aName, members, individualBonus, factoryType=factoryType)
+                    self.addContinent(aName, members, int(individualBonus), factoryType=factoryType)
             for b in IDSet2:
                 b = int(b)
 
                 bName = self.getTerritoryNameFromIDs(b)
                 abName = aName + "_" + bName
-                if nameSuffix != None:
+                if nameSuffix is not None:
                     abName = abName + nameSuffix
                 if int(pairBonus) != 0:
                     if factory != None:
-                        self.addContinent(abName, members + [b], pairBonus, factory=factory)
+                        self.addContinent(abName, members + [b], int(pairBonus), factory=factory)
                     else:
-                        self.addContinent(abName, members + [b], pairBonus)
+                        self.addContinent(abName, members + [b], int(pairBonus))
 
-    def swapBorderDirection(self, borderElement):
+    def swapBorderDirection(self, border_element):
         '''
         Functionally the same border, but from/to is swapped.
         Does nothing if border is not two-way
         '''
-        direction = borderElement.getAttribute("direction")
+        direction = border_element.getAttribute("direction")
         if direction != "Two-way":
             return
 
-        fromid = borderElement.getAttribute("fromid")
-        toid = borderElement.getAttribute("toid")
-        ftattackmod = borderElement.getAttribute("ftattackmod")
-        ftdefendmod = borderElement.getAttribute("ftdefendmod")
-        tfattackmod = borderElement.getAttribute("tfattackmod")
-        tfdefendmod = borderElement.getAttribute("tfdefendmod")
+        from_id = border_element.getAttribute("fromid")
+        to_id = border_element.getAttribute("toid")
+        ftattackmod = border_element.getAttribute("ftattackmod")
+        ftdefendmod = border_element.getAttribute("ftdefendmod")
+        tfattackmod = border_element.getAttribute("tfattackmod")
+        tfdefendmod = border_element.getAttribute("tfdefendmod")
 
-        borderElement.setAttribute("ftattackmod", tfattackmod)
-        borderElement.setAttribute("ftdefendmod", tfdefendmod)
-        borderElement.setAttribute("tfattackmod", ftattackmod)
-        borderElement.setAttribute("tfdefendmod", ftdefendmod)
+        border_element.setAttribute("ftattackmod", tfattackmod)
+        border_element.setAttribute("ftdefendmod", tfdefendmod)
+        border_element.setAttribute("tfattackmod", ftattackmod)
+        border_element.setAttribute("tfdefendmod", ftdefendmod)
 
-        borderElement.setAttribute("fromid", toid)
-        borderElement.setAttribute("toid", fromid)
+        border_element.setAttribute("fromid", to_id)
+        border_element.setAttribute("toid", from_id)
 
-    def splitBorders(self, S1List, S2List):
-        '''
+    def split_borders(self, S1List, S2List):
+        """
         Borders are defined in the XML like this:
         <border direction="Two-way" fromid="39" ftattackmod="0" ftdefendmod="0" tfattackmod="0" tfdefendmod="0" toid="42" type="Default"/>
-        '''
+        """
         print("splitBorders called")
         print("S1List", S1List)
         print("S2List", S2List)
         print("kwargs:")
 
-        bordersToMod = []
+        borders_to_mod = []
 
         for border in self.DOM.getElementsByTagName("border"):
             if (border.getAttribute("direction") != "Two-way"):
@@ -573,12 +582,12 @@ class WGMap(object):
             toid = int(border.getAttribute("toid"))
 
             if ((fromid in S1List) and (toid in S2List)):
-                bordersToMod.append(border)
+                borders_to_mod.append(border)
             else:
                 if ((fromid in S2List) and (toid in S1List)):
-                    bordersToMod.append(border)
+                    borders_to_mod.append(border)
 
-        for border in bordersToMod:
+        for border in borders_to_mod:
             fromid = border.getAttribute("fromid")
             toid = border.getAttribute("toid")
             border.setAttribute("direction", "One-way")
@@ -596,8 +605,8 @@ class WGMap(object):
             ypos = territory.getAttribute("ypos")
             territory.setAttribute("ypos", str(int(ypos) + y))
 
-    def modifyBorders(self, fromList, toList, **kwargs):
-        '''
+    def modify_borders(self, from_list, to_list, **kwargs):
+        """
         Modifies a set of borders that fit some criteria.
 
         Borders are defined in the XML like this:
@@ -641,22 +650,22 @@ class WGMap(object):
           This only works on existing borders, it will not create borders (different form/button for that eventually)
 
           If you have a two-way border, and you change it to 1-way, and then change it 1-way the oppposite way, you do not get two 1-way borders.  This can be a bit tricky if you want (for example) a fortify border in one direction and a view border in the other direction.    What you need to do is when you create the borders originally, do not create them as 2-way borders, but instead create two 1-way borders, and then it will work correctly.
-        '''
+        """
         direction = kwargs.get('borderDirection', None)
         borderType = kwargs.get('borderType', None)
-        attackMod = kwargs.get('attackModifier', None)
+        attack_mod = kwargs.get('attackModifier', None)
         defenseMod = kwargs.get('defenseModifier', None)
 
         print("modifyBorders called")
-        print("fromList", fromList)
-        print("toList", toList)
+        print("fromList", from_list)
+        print("toList", to_list)
         print("kwargs:")
         for key, value in kwargs.items():
             print(key, value)
 
         if ((direction == None) and
                 (borderType == None) and
-                (attackMod == None) and
+                (attack_mod == None) and
                 (defenseMod == None)):
             print("warning, modifyBorders called with no requested modifications")
             return
@@ -677,24 +686,24 @@ class WGMap(object):
             fromid = int(border.getAttribute("fromid"))
             toid = int(border.getAttribute("toid"))
 
-            if ((fromid in fromList) and (toid in toList)):
+            if ((fromid in from_list) and (toid in to_list)):
                 bordersToMod.append(border)
 
             else:
-                if ((fromid in toList) and (toid in fromList)):
+                if ((fromid in to_list) and (toid in from_list)):
                     if (border.getAttribute("direction") == "Two-way"):
                         self.swapBorderDirection(border)
                         bordersToMod.append(border)
 
         for border in bordersToMod:
-            setAttributes(border, attackMod, defenseMod, direction, borderType)
+            setAttributes(border, attack_mod, defenseMod, direction, borderType)
             # check to see if we need to mode the other direction.
             fromid = int(border.getAttribute("fromid"))
             toid = int(border.getAttribute("toid"))
-            if ((fromid in toList) and (toid in fromList)):
+            if ((fromid in to_list) and (toid in from_list)):
                 if (border.getAttribute("direction") == "Two-way"):
                     self.swapBorderDirection(border)
-                    setAttributes(border, attackMod, defenseMod, direction, borderType)
+                    setAttributes(border, attack_mod, defenseMod, direction, borderType)
 
     def continentsFromNeighbors(self, targetIDList, bonus, **kwargs):
         '''
@@ -747,7 +756,7 @@ class WGMap(object):
                 fid = tid
             if fid == None:
                 fid = -1
-            continentName = "%s%s" % (continentPrefix, str(self.getTerritoryNameFromID(tid)))
+            continentName = "%s%s" % (continentPrefix, str(self.get_territory_name_from_ID(tid)))
             tbonus = num(bonus)
             if isinstance(tbonus, float):
                 tbonus = floor(bonus * len(members))
@@ -776,9 +785,9 @@ class WGMap(object):
         for territoryElement in territoryElementList:
             territoryName = territoryElement.getAttribute("name")
             hordesTerritoryName = territoryName + continentNameSuffix
-            # print "comparing: ",baseRegex,territoryName
+            # print("comparing: ",baseRegex,territoryName
             if (None == re.search(baseRegex, territoryName)):
-                # print "no match"
+                # print("no match"
                 continue
             # collect the neighbors & self
             neighborElementSet = self.getNeighbors(territoryElement, "either", neighborRegex)
@@ -839,7 +848,7 @@ class WGMap(object):
             print("comparing", territoryNameRegex, territoryName)
             if (None != re.search(territoryNameRegex, territoryName)):
                 returnSet.add(int(territoryElement.getAttribute("tid")))
-        # print "found no match for", territoryName
+        # print("found no match for", territoryName
         return returnSet
 
     def getTerritoryIDsFromNames(self, territoryNames):
@@ -866,33 +875,35 @@ class WGMap(object):
         for territory in self.DOM.getElementsByTagName("territory"):
             if (territory.getAttribute("name") == territoryName):
                 # if (self.debug):
-                # print "found a match",territory.getAttribute("name"),territoryName,"with id",territory.getAttribute("tid")
+                # print("found a match",territory.getAttribute("name"),territoryName,"with id",territory.getAttribute("tid")
                 return int(territory.getAttribute("tid"))
             print("found no match for", territoryName)
             return None
 
-    def getTerritoryNameFromIDs(self, territoryIDs):
-        '''
+    def getTerritoryNameFromIDs(self, territory_IDs):
+        """
         Given a territory ID find the name for that territory (or None if not found)
 
+        This works with a single territory ID or an iterable of territory IDs.  Is this bad practice?
+
         Args:
-          territoryName (str): The name to look for.
-        '''
+          territory_IDs (str): The name(s) to look for.
+        """
         names = []
         try:
-            for tid in territoryIDs:
-                # print "searching <territory>s for",tid
+            for tid in territory_IDs:
+                # print("searching <territory>s for",tid
                 for territory in self.DOM.getElementsByTagName("territory"):
-                    if (int(territory.getAttribute("tid")) == int(tid)):
+                    if int(territory.getAttribute("tid")) == int(tid):
                         names.append(territory.getAttribute("name"))
             return names
 
         except TypeError:
             # territoryIDs is not iterable
-            return self.getTerritoryNameFromID(territoryIDs)
+            return self.get_territory_name_from_ID(territory_IDs)
 
     # refactor with   getTerritoryNameFromIDs
-    def getTerritoryNameFromID(self, tid):
+    def get_territory_name_from_ID(self, tid):
         '''
         Given a territory ID find the name for that territory (or None if not found)
 
@@ -900,7 +911,7 @@ class WGMap(object):
           territoryName (str): The name to look for.
         '''
 
-        # print "searching <territory>s for",tid
+        # print("searching <territory>s for",tid
         for territory in self.DOM.getElementsByTagName("territory"):
             if (int(territory.getAttribute("tid")) == int(tid)):
                 return territory.getAttribute("name")
@@ -909,7 +920,7 @@ class WGMap(object):
     def getATerritoryWithNBorders(self, nBorders):
 
         for territory in self.DOM.getElementsByTagName("territory"):
-            if (len(self.getTerritoryBordersByElement(territory)) == nBorders):
+            if len(self.getTerritoryBordersByElement(territory)) == nBorders:
                 return territory
 
         return None
@@ -918,33 +929,35 @@ class WGMap(object):
     # I think this version has been tested but other has not.
     # return set includes original territoryID
     def getAllTerritoriesWithinNBorders(self, territoryID, nBorders, direction="either",
-                                        borderTypesAllowed=["Default", "Attack Only"], targetRegex=".*"):
+                                        borderTypesAllowed=None, targetRegex=".*"):
 
         # import pdb;
+        if borderTypesAllowed is None:
+            borderTypesAllowed = ["Default", "Attack Only"]
         tid = int(territoryID)
-        # print"gatwnb called with",tid, nBorders
-        borderDepth = 0
+
+        border_depth = 0
         allTerritoriesInReach = set()
         allTerritoriesInReach.add(tid)
         nBorders = int(nBorders)
-        print("borderDepth:", borderDepth)
+        print("borderDepth:", border_depth)
         print("nBorders:", nBorders)
         print("borderTypesAllowed:", borderTypesAllowed)
 
-        while (borderDepth < nBorders):
+        while (border_depth < nBorders):
             allTerritoriesAddition = set()
-            # print "len(allTerritoriesAddition)",len(allTerritoriesAddition)
+            # print("len(allTerritoriesAddition)",len(allTerritoriesAddition)
             for tirID in allTerritoriesInReach:
                 tb = self.getNeighborIDsFromID(tirID, direction, targetRegex, borderTypesAllowed)
                 # tb = self.getBorderTerritoryIDsByTerritoryID(tirID,direction)
-                # print "for",tirID,"found borders:",tb,"size:",len(tb)
+                # print("for",tirID,"found borders:",tb,"size:",len(tb)
                 # if len(tb) > 8:
                 #    pdb.set_trace()
                 allTerritoriesAddition |= set(tb)
             allTerritoriesInReach |= allTerritoriesAddition
-            borderDepth = borderDepth + 1
+            border_depth = border_depth + 1
 
-            # print "atir",allTerritoriesInReach
+            # print("atir",allTerritoriesInReach
 
         # allTerritoriesInReach.discard(tid)
         print("returning", allTerritoriesInReach)
@@ -977,20 +990,20 @@ class WGMap(object):
         return returnSet
 
     def getBorderElementsByTerritoryID(self, territoryID, direction="either"):
-        '''
-    Get a collection of borders for this territory.
-    Args:
-      Identifier: territory ID
-    '''
+        """
+        Get a collection of borders for this territory.
+        Args:
+          Identifier: territory ID
+        """
         borders = self.DOM.getElementsByTagName("border")
         tid = str(territoryID)
         tb = []
         for border in borders:
-            if (direction == "either" or direction == "to"):
+            if direction == "either" or direction == "to":
                 if ((tid == border.getAttribute("fromid")) or (
                         tid == border.getAttribute("toid") and border.getAttribute("direction") == "Two-way")):
                     tb.append(border)
-            if (direction == "either" or direction == "from"):
+            if direction == "either" or direction == "from":
                 if ((tid == border.getAttribute("toid")) or (
                         tid == border.getAttribute("fromid") and border.getAttribute("direction") == "Two-way")):
                     tb.append(border)
@@ -1011,25 +1024,25 @@ class WGMap(object):
         Args:
           Identifier: can be a Name or territory ID
         '''
-        # print "getTerritoryElement called with identity: ",identifier
+        # print("getTerritoryElement called with identity: ",identifier
         # import pdb;
         # pdb.set_trace;
         try:
             ID = int(identifier)
             # got a territory ID
-            # print "getting territory element by ID",identifier
+            # print("getting territory element by ID",identifier
             return self.__getTerritoryElementByID(ID)
 
         except:
-            # print "caught error:", exc_info()[0]
+            # print("caught error:", exc_info()[0]
             # traceback.print_exc()
             #
             # must be a name
-            # print "getting territory element by name",identifier
+            # print("getting territory element by name",identifier
             return self.__getTerritoryElementByName(identifier)
 
     def __getTerritoryElementByName(self, name):
-        # print "looking for",name
+        # print("looking for",name
         for territory in self.DOM.getElementsByTagName("territory"):
             if territory.getAttribute("name") == name:
                 return territory
@@ -1037,7 +1050,7 @@ class WGMap(object):
 
     def __getTerritoryElementByID(self, tid):
         for territory in self.DOM.getElementsByTagName("territory"):
-            # print "comparing",territory.getAttribute("tid"), tid
+            # print("comparing",territory.getAttribute("tid"), tid
             if int(territory.getAttribute("tid")) == int(tid):
                 return territory
         return None
@@ -1077,88 +1090,94 @@ class WGMap(object):
     #   for border in borders:
     #     if (direction == "either" or direction == "to" ):
     #       if (tid == border.getAttribute("fromid")):
-    #         print tid, border.getAttribute("toid")
+    #         print(tid, border.getAttribute("toid")
     #         tb.add(int(border.getAttribute("toid")))
     #       if (tid == border.getAttribute("toid") and border.getAttribute("direction") == "Two-way"):
-    #         print tid, border.getAttribute("fromid")
+    #         print(tid, border.getAttribute("fromid")
     #         tb.add(int(border.getAttribute("fromid")))
     #     if (direction == "either" or direction == "from" ):
     #       if (tid == border.getAttribute("toid")):
-    #         print tid, border.getAttribute("fromid")
+    #         print(tid, border.getAttribute("fromid")
     #         tb.add(int(border.getAttribute("fromid")))
     #       if (tid == border.getAttribute("fromid") and border.getAttribute("direction") == "Two-way"):
-    #         print tid, border.getAttribute("toid")
+    #         print(tid, border.getAttribute("toid")
     #         tb.add(int(border.getAttribute("toid")))
     #   return tb
 
     def getNeighborIDsFromID(self, territoryID, direction="either", neighborRegex=".*",
-                             borderTypesAllowed=["Default", "Attack Only"]):
-        '''
+                             borderTypesAllowed=None):
+        """
         Given territoryID return all IDs of all other territories that share a border with it.
 
         Args:
           territoryID (int): The ID for which neighbors are found.
-          direction (int): A string describing the type of neighbor to find.  Valid values::
+          direction (string): A string describing the type of neighbor to find.  Valid values::
             "to"
             "from"
             "either"
-          nieghborRegex (str): Only include neighbors in the returned set if their name matches this regex.
+          neighborRegex (str): Only include neighbors in the returned set if their name matches this regex.
 
         .. warning::
           direction is not working(?)
 
-        '''
-        # print "borderTypesAllowed:",borderTypesAllowed
-        neighborIDs = set()
+        """
+        # print("borderTypesAllowed:",borderTypesAllowed
+        if borderTypesAllowed is None:
+            borderTypesAllowed = ["Default", "Attack Only"]
+        neighbor_ids = set()
         for neighbor in self.getNeighborsFromID(territoryID, direction, neighborRegex, borderTypesAllowed):
-            neighborIDs.add(int(neighbor.getAttribute("tid")))
+            neighbor_ids.add(int(neighbor.getAttribute("tid")))
 
-        return neighborIDs
+        return neighbor_ids
 
     # todo: check that direction works.  We are not looking at 'one-way' vs. 'two-way'
     def getNeighborsFromID(self, territoryID, direction="either", neighborRegex=".*",
-                           borderTypesAllowed=["Default", "Attack Only"]):
-        '''
+                           border_types_allowed=None):
+        """
         Given territoryID return set of all IDs (as strings) of all other territories that share a border with it.
 
         Args:
-          territoryID (int): The ID for which neighbors are found.
-          direction (int): A string describing the type of neighbor to find.  Valid values::
-            "to"
-            "from"
-            "either"
-          nieghborRegex (str): Only include neighbors in the returned set if their name matches this regex.
+            territoryID (int): The ID for which neighbors are found.
+            direction (str): A string describing the type of neighbor to find.  Valid values::
+              "to"
+              "from"
+              "either"
+            neighborRegex (str): Only include neighbors in the returned set if their name matches this regex.
+            border_types_allowed :
 
         .. warning::
           direction is currently ignored
 
-        '''
-        # print "finding neighbors for", territoryID, "with direction",direction
+        """
+        # print("finding neighbors for", territoryID, "with direction",direction
+        if border_types_allowed is None:
+            border_types_allowed = ["Default", "Attack Only"]
         neighbors = set()
         tid = str(territoryID)
-        # print "borderTypesAllowed",borderTypesAllowed
+        # print("borderTypesAllowed",borderTypesAllowed
         for border in self.DOM.getElementsByTagName("border"):
-            # print "toid:",border.getAttribute("toid"),"fromid:",border.getAttribute("fromid"), "type",border.getAttribute("type")
+            print("toid:",border.getAttribute("toid"),"fromid:",border.getAttribute("fromid"), "type",border.getAttribute("type"))
             if tid == border.getAttribute("fromid"):
-                # print "looking for t:",border.getAttribute("toid")
+                print( "looking for t:",border.getAttribute("toid"))
                 neighbor = self.getTerritoryElement(border.getAttribute("toid"))
-                # print "comparing:",neighborRegex,neighbor.getAttribute("name"),re.search(neighborRegex,neighbor.getAttribute("name"))
+                print("comparing:",neighborRegex,neighbor.getAttribute("name"),re.search(neighborRegex,neighbor.getAttribute("name")))
                 if ((direction == "either" or direction == "from") and None != re.search(neighborRegex,
                                                                                          neighbor.getAttribute("name"))
-                        and border.getAttribute("type") in borderTypesAllowed):
+                        and border.getAttribute("type") in border_types_allowed):
                     neighbors.add(neighbor)
-                    # print "adding",neighbor.getAttribute("name")
+                    print("adding",neighbor.getAttribute("name"))
 
             if tid == border.getAttribute("toid"):
-                # print "looking for f:",border.getAttribute("fromid")
+                print("looking for f:",border.getAttribute("fromid"))
                 neighbor = self.getTerritoryElement(border.getAttribute("fromid"))
-                # print "comparing:",neighborRegex,neighbor.getAttribute("name"),re.search(neighborRegex,neighbor.getAttribute("name"))
+                print("comparing:",neighborRegex,neighbor.getAttribute("name"),re.search(neighborRegex,neighbor.getAttribute("name")))
                 if ((direction == "either" or direction == "to") and None != re.search(neighborRegex,
                                                                                        neighbor.getAttribute("name"))
-                        and border.getAttribute("type") in borderTypesAllowed):
+                        and border.getAttribute("type") in border_types_allowed):
                     neighbors.add(neighbor)
-                    # print "adding",neighbor.getAttribute("name")
-        # print "found neighbors",neighbors
+                    print("adding",neighbor.getAttribute("name"))
+        print("found neighbors:",neighbors)
+        .0
         return neighbors
 
         # todo: cache this?
@@ -1286,12 +1305,12 @@ class WGMap(object):
 
     def getContinentFromMembers(self, neighborElementList):
         '''
-    Args:
-      neigbhorElementList (list): A list of neighbor elements to compare against.
+        Args:
+          neighborElementList (list): A list of neighbor elements to compare against.
 
-    Returns:
-      The first continentElement that has the same neighbors as the neighborElementList (or None)
-    '''
+        Returns:
+          The first continentElement that has the same neighbors as the neighborElementList (or None)
+        '''
         territoryIDSet = set(neighborElementList)
 
         for continentElement in self.DOM.getElementsByTagName("continent"):
@@ -1514,8 +1533,8 @@ class WGMap(object):
                     if (None != re.search(toRegex, toElement.getAttribute("name"))):
                         print("found a match from:", fromElement.getAttribute("name"), "to:",
                               toElement.getAttribute("name"))
-                        self.addBorder(int(fromElement.getAttribute("tid")), int(toElement.getAttribute("tid")), \
-                                       direction, borderType, ftattackmod, ftdefendmod, tfattackmod, \
+                        self.addBorder(int(fromElement.getAttribute("tid")), int(toElement.getAttribute("tid")),
+                                       direction, borderType, ftattackmod, ftdefendmod, tfattackmod,
                                        tfdefendmod, ftattackmin, ftdefendmin, tfattackmin, tfdefendmin)
 
     def addBorder(self, fromIdentifier, toIdentifier, direction="Two-way", borderType="Default", ftattackmod="0",
@@ -1537,7 +1556,7 @@ class WGMap(object):
       If your territory names are integers, they will get treated as tid attributes, so don't do this!!
 
     '''
-        # print "add border called with identity: ",fromIdentifier,toIdentifier
+        # print("add border called with identity: ",fromIdentifier,toIdentifier
 
         try:
             fromID = int(fromIdentifier)
@@ -1551,7 +1570,7 @@ class WGMap(object):
                                         tfdefendmin)
 
         except:
-            # print "caught error:", exc_info()[0]
+            # print("caught error:", exc_info()[0]
             # traceback.print_exc()
 
             # must be a name
@@ -1593,7 +1612,7 @@ class WGMap(object):
     .. note::
        a "borders" element is created if it does not already exist
     '''
-        # print "ID - adding border from ",fromid,toid
+        # print("ID - adding border from ",fromid,toid
 
         if (fromid == toid):
             return False
@@ -1617,7 +1636,7 @@ class WGMap(object):
         newBorderElement.setAttribute("tfdefendmin", str(tfdefendmin))
 
         bordersElements = self.DOM.getElementsByTagName("borders")
-        # print bordersElements
+        # print(bordersElements
         if (bordersElements == None or len(bordersElements) == 0):
             bordersElement = self.DOM.createElement("borders")
             bordersElement.appendChild(newBorderElement)
@@ -1638,7 +1657,7 @@ class WGMap(object):
 
         # import pdb; pdb.set_trace()
 
-        # print "adding territory",name,xpos,ypos
+        # print("adding territory",name,xpos,ypos
         # get max tid (or 0) & start at one greater
         maxTID = 0
         for territory in self.DOM.getElementsByTagName("territory"):
@@ -1665,7 +1684,7 @@ class WGMap(object):
         else:
             territoriesElements[0].appendChild(newTerritoryElement)
 
-        return maxTID;
+        return maxTID
 
     def addContinentFromElements(self, continentName, territoryElementList, bonus=1):
         '''
@@ -1674,7 +1693,7 @@ class WGMap(object):
     .. note::
        a "continents" element is created if it does not already exist
     '''
-        # print "addContinentFromElements:", continentName, territoryElementList, bonus
+        # print("addContinentFromElements:", continentName, territoryElementList, bonus
         territoryIDList = []
         for territoryElement in territoryElementList:
             tid = territoryElement.getAttribute("tid")
@@ -1712,7 +1731,7 @@ class WGMap(object):
     .. note::
        a "continents" element is created if it does not already exist
     '''
-        # print "Adding Continent",continentName, memberIDsString, bonus
+        # print("Adding Continent",continentName, memberIDsString, bonus
         newContinentElement = self.DOM.createElement("continent")
         newContinentElement.setAttribute("boardid", str(
             self.DOM.getElementsByTagName("board")[0].getAttribute("boardid")))
@@ -1723,7 +1742,7 @@ class WGMap(object):
         newContinentElement.setAttribute("factory_type", str(factoryType))
 
         continentsElements = self.DOM.getElementsByTagName("continents")
-        #    print "adding continent",str(newContinentElement)
+        #    print("adding continent",str(newContinentElement)
         if (continentsElements == None or len(continentsElements) == 0):
             continentsElement = self.DOM.createElement("continents")
             continentsElement.appendChild(newContinentElement)
@@ -1731,7 +1750,7 @@ class WGMap(object):
         else:
             continentsElements[0].appendChild(newContinentElement)
 
-        # print "Adding Continent",newContinentElement.toprettyxml()
+        # print("Adding Continent",newContinentElement.toprettyxml()
 
     def addRotatingFactories(self, **kwargs):
         '''
@@ -1761,8 +1780,8 @@ class WGMap(object):
                 tix2 = 0
             tid1 = tids[tix]
             tid2 = tids[tix2]
-            tname1 = self.getTerritoryNameFromID(tid1)
-            tname2 = self.getTerritoryNameFromID(tid2)
+            tname1 = self.get_territory_name_from_ID(tid1)
+            tname2 = self.get_territory_name_from_ID(tid2)
 
             continentName = namePrefix + tname1 + "_" + tname2
             self.addContinent(continentName + "-ON", tid1, +1, tid2, "AutoCapture")
@@ -1793,7 +1812,7 @@ class WGMap(object):
 
     def printStatistics(self):
         '''
-    Print some statistics about a map.
+    print(some statistics about a map.
     '''
         print("Map Name:", self.DOM.getElementsByTagName("board")[0].getAttribute("boardname"))
         print("# of Territories:", len(self.DOM.getElementsByTagName("territory")))
@@ -1858,31 +1877,31 @@ class WGMap(object):
     def countTerritoriesWithBorders(self, numBorders, direction="Two-way"):
         '''  '''
         borderCounts = self.getBorderCounts(direction)
-        count = 0;
+        count = 0
         for BName, BCount in borderCounts.items():
             if (BCount == numBorders):
                 count += 1
 
-        return count;
+        return count
 
     # count how many continents have numBonus
     def countContinentsWithBonus(self, numBonus):
         ''' '''
-        count = 0;
+        count = 0
         for continentElement in self.DOM.getElementsByTagName("continent"):
-            # print "continent",continentElement.getAttribute("name")
-            # print "bonus",continentElement.getAttribute("bonus")
+            # print("continent",continentElement.getAttribute("name")
+            # print("bonus",continentElement.getAttribute("bonus")
             if (int(continentElement.getAttribute("bonus")) == numBonus):
-                # print "found one with bonus=",numBonus
+                # print("found one with bonus=",numBonus
                 count += 1
 
-        return count;
+        return count
 
     def doTheyBorder(self, ID1, ID2):
         '''
-    Return true if the territories identified by ID1 & ID2 share a border.  False otherwise
-    '''
-        # print "checking for border:",ID1,ID2
+        Return true if the territories identified by ID1 & ID2 share a border.  False otherwise
+        '''
+        # print("checking for border:",ID1,ID2
         ID1 = int(ID1)
         ID2 = int(ID2)
         for borderElement in self.DOM.getElementsByTagName("border"):
@@ -1890,22 +1909,22 @@ class WGMap(object):
             toID = int(borderElement.getAttribute("toid"))
             direction = borderElement.getAttribute("direction")
             if (fromID == ID1 and toID == ID2):
-                # print "border found",ID1,ID2
+                # print("border found",ID1,ID2
                 return True
             if (fromID == ID2 and toID == ID1 and direction == "Two-way"):
-                # print "border found",ID1,ID2
+                # print("border found",ID1,ID2
                 return True
 
-        # print "border not found"
+        # print("border not found"
         return False
 
     def deleteTerritory(self, identifier):
         '''
-    Delete a territory.
+        Delete a territory.
 
-    Args:
-      identifier can be a Name or ID
-    '''
+        Args:
+          identifier can be a Name or ID
+        '''
 
         try:
             ID = int(identifier)
@@ -1924,17 +1943,17 @@ class WGMap(object):
 
     def __deleteTerritoryByID(self, territoryID):
         '''
-     deletes a territory from the XML, includes relevant borders,
-     and removes itself from continents
+        deletes a territory from the XML, includes relevant borders,
+        and removes itself from continents
 
-     returns false if the territoryID was not found, true otherwise
-    '''
+        returns false if the territoryID was not found, true otherwise
+        '''
 
         # delete the territory element from the DOM
         found = False
         for territoryElement in self.DOM.getElementsByTagName("territory"):
-            # print territoryID
-            # print territoryElement.getAttribute("tid")
+            # print(territoryID
+            # print(territoryElement.getAttribute("tid")
             if (int(territoryElement.getAttribute("tid")) == int(territoryID)):
                 found = True
                 territoryElement.parentNode.removeChild(territoryElement)
@@ -1954,18 +1973,18 @@ class WGMap(object):
             # todo: move this to a function
             # remove this territoryID from all continent member lists
             # remove the continent if there are no longer any territories in it.
-            # print "in delete by tid",self.DOM.toprettyxml()
+            # print("in delete by tid",self.DOM.toprettyxml()
         for continentElement in self.DOM.getElementsByTagName("continent"):
             memberList = set()
-            # print territoryID,"c:",continentElement.getAttribute("name")," m:",continentElement.getAttribute("members")
-            # print continentElement.toprettyxml()
+            # print(territoryID,"c:",continentElement.getAttribute("name")," m:",continentElement.getAttribute("members")
+            # print(continentElement.toprettyxml()
             for memberID in continentElement.getAttribute("members").split(','):
-                # print "for",continentElement.getAttribute("name"),"looking at",memberID
-                # print "t,m",territoryID,memberID
+                # print("for",continentElement.getAttribute("name"),"looking at",memberID
+                # print("t,m",territoryID,memberID
                 if int(memberID) != int(territoryID):
                     memberList.add(str(int(memberID)))
             memberListString = ",".join(memberList)
-            # print "mls",memberListString
+            # print("mls",memberListString
             continentElement.setAttribute("members", str(memberListString))
 
             if (len(memberList) == 0):
@@ -2096,25 +2115,25 @@ class SquareGridWGMap(WGMap):
         # initial setup
         if territoryID == None:
             territoryID = self.DOM.getElementsByTagName("territory")[0].getAttribute("tid")
-        # print "territoryID",territoryID
+        # print("territoryID",territoryID
         territoriesReached = set(territoryID)
-        # print "territoriesReached",territoriesReached
+        # print("territoriesReached",territoriesReached
         territoriesToCheck = set()  # territories that have neighbors we may not have looked at yet
 
         # account for neighbors of first territory
         territoriesToCheck |= self.getNeighborIDsFromID(territoryID)
 
-        # print "territoriesToCheck", territoriesToCheck
+        # print("territoriesToCheck", territoriesToCheck
         while len(territoriesToCheck) > 0:
             # get a territory to check/reach
             territoryID = territoriesToCheck.pop()
-            # print "looking at",territoryID
+            # print("looking at",territoryID
             # find all of it's neighbors
             neighbors = self.getNeighborIDsFromID(territoryID)
-            # print "neighbors", neighbors
+            # print("neighbors", neighbors
             # add any newly available territories
             territoriesToCheck |= (neighbors - territoriesReached)
-            # print "territoriesToCheck", territoriesToCheck
+            # print("territoriesToCheck", territoriesToCheck
 
             territoriesReached.add(territoryID)
 
@@ -2133,21 +2152,21 @@ class SquareGridWGMap(WGMap):
             return True
         else:
             # import pdb; pdb.set_trace()
-            # print "connecting two groups of territories"
+            # print("connecting two groups of territories"
             for t1 in territoriesMissed:
                 for t2 in territoriesReached:
                     (r1, c1) = self.getRC(self.getTerritoryElement(t1))
                     (r2, c2) = self.getRC(self.getTerritoryElement(t2))
-                    # print "comparing",t1,t2,r1,c1,r2,c2
+                    # print("comparing",t1,t2,r1,c1,r2,c2
                     if abs(r1 - r2) + abs(c1 - c2) < 2:  # found a neighbor (no diagonals)
                         # pdb.set_trace()
                         self.addBorder(t1, t2)
                         return False
 
             # return False  #give up!
-            # print "all territories:", self.getTerritoryNameFromIDs(allTerritories)
-            # print "territories reached:",self.getTerritoryNameFromIDs(territoriesReached)
-            # print "territories missed: ", self.getTerritoryNameFromIDs(allTerritories - territoriesReached)
+            # print("all territories:", self.getTerritoryNameFromIDs(allTerritories)
+            # print("territories reached:",self.getTerritoryNameFromIDs(territoriesReached)
+            # print("territories missed: ", self.getTerritoryNameFromIDs(allTerritories - territoriesReached)
             # return self.connectSeperateGroups(territoryID)
 
         raise Exception  # we should never get here
@@ -2181,10 +2200,10 @@ class SquareGridWGMap(WGMap):
             for ulx in range(self.cols - 1):
                 territoryElements = []
                 # contintent name is name of UL territory
-                # print "gridname", self.getTerritoryName(uly,ulx)
+                # print("gridname", self.getTerritoryName(uly,ulx)
                 territoryElement = self.getTerritoryElement(
                     self.getTerritoryName(uly, ulx))
-                # print "territoryElement",territoryElement
+                # print("territoryElement",territoryElement
                 territoryElements.append(territoryElement)
                 territoryElements.append(self.getTerritoryElement(
                     self.getTerritoryName(uly + 1, ulx)))
@@ -2209,7 +2228,7 @@ class SquareGridWGMap(WGMap):
         return list(map(int, territoryName.split("_")))
 
     def getTerritoryElement(self, territoryIdentifier):
-        # print "MazeWGMap.getTerritoryElement() called with",territoryIdentifier
+        # print("MazeWGMap.getTerritoryElement() called with",territoryIdentifier
 
         # if this is a string, we want to make sure python doesn't
         # treat it as a tuple
@@ -2221,27 +2240,28 @@ class SquareGridWGMap(WGMap):
             return WGMap.getTerritoryElement(self, self.getTerritoryName(r, c))
 
         except:
-            # print "caught error:", exc_info()[0]
+            # print("caught error:", exc_info()[0]
             # traceback.print_exc()
 
             # must be a name
-            # print "getting territory element by name",identifier
+            # print("getting territory element by name",identifier
             return WGMap.getTerritoryElement(self, territoryIdentifier)
 
     def addOneWayBordersFromBaseTerritoryID(self, baseID, RC, brange=1, attackBonus=0, defenseBonus=0):
         '''
-    RC - row column of source of borders
-    '''
+        RC - row column of source of borders
+        '''
         # for currentRange in range(brange):
         #  pass
         # self.addBorder(baseID, toID, "One-way", borderType = "Default", attackBonus.str(),
         #            defenseBonus.str())
+        pass
 
     def addBordersViaRegex(self, ULRC, LRRC):
         '''
-    ULRC - Upper Left Row Column
-    LRRC - Lower Right Row Column
-    '''
+        ULRC - Upper Left Row Column
+        LRRC - Lower Right Row Column
+        '''
         (ULR, ULC) = ULRC
         (LRR, LRC) = LRRC
 
@@ -2264,11 +2284,11 @@ class SquareGridWGMap(WGMap):
             return WGMap.addBorder(self, self.getTerritoryName(fromR, fromC), self.getTerritoryName(toR, toC))
 
         except:
-            # print "caught error:", exc_info()[0]
+            # print("caught error:", exc_info()[0]
             # traceback.print_exc()
 
             # must be a name
-            # print "getting territory element by name",identifier
+            # print("getting territory element by name",identifier
             return WGMap.addBorder(self, fromRC, toRC)
 
     def doTheyBorder(self, fromRC, toRC):
@@ -2285,11 +2305,11 @@ class SquareGridWGMap(WGMap):
             return WGMap.doTheyBorder(self, fromID, toID)
 
         except:
-            # print "caught error:", exc_info()[0]
+            # print("caught error:", exc_info()[0]
             # traceback.print_exc()
 
             # must be a name
-            # print "getting territory element by name",identifier
+            # print("getting territory element by name",identifier
             return WGMap.doTheyBorder(self, fromRC, toRC)
 
     def addBorderToCoordinate(self, fromID, toRow, toCol):
@@ -2329,7 +2349,7 @@ class SquareGridWGMap(WGMap):
                     # finish this.
 
 
-import MazeWGMap
+# import MazeWGMap
 
 
 # from http://stackoverflow.com/questions/651794/whats-the-best-way-to-initialize-a-dict-of-dicts-in-python
@@ -2348,9 +2368,9 @@ class AutoVivification(dict):
 
 def hordifySuperMetgear2():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Super Metgear/Super Metgear - 5. Upper Levels.xml')
+    wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Super Metgear/Super Metgear - 5. Upper Levels.xml')
     wgmap.hordify()
-    wgmap.saveMapToFile(
+    wgmap.save_map_to_file(
         '//DISKSTATION/data/wargear development/Super Metgear/Super MetgearHordes - 5. Upper Levels.xml', False)
 
 
@@ -2358,33 +2378,33 @@ def hordifySuperMetgear2():
 def hordifySuperMetgear():
     wgmap = WGMap()
     #  wgmap.loadMapFromFile('//BHO/data/wargear development/Super Metgear/Super_Metgear.xml')
-    #  print "Statistics before Hordify\n"
+    #  print("Statistics before Hordify\n"
     #  wgmap.printStatistics()
     #  wgmap.hordify()
-    #  print "\n\nStatistics after Hordify\n"
+    #  print("\n\nStatistics after Hordify\n"
     #  wgmap.saveMapToFile('//BHO/data/wargear development/Super Metgear/Super_MetgearHordes.xml')
 
     for name in ["2. Crateria", "3. Tourain", "4. Brinstar", "5. Wrecked Ship", "6. Maridia", "7. Norfair"]:
-        wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Super Metgear/Super Metgear - ' + name + '.xml')
+        wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Super Metgear/Super Metgear - ' + name + '.xml')
         wgmap.hordify()
-        wgmap.saveMapToFile(
+        wgmap.save_map_to_file(
             '//DISKSTATION/data/wargear development/Super Metgear/Super MetgearHordes - ' + name + '.xml')
 
 
 def hordifyPangaea():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//BHO/data/wargear development/pangaea/Pangaea - Land&C.xml')
+    wgmap.load_map_from_file('//BHO/data/wargear development/pangaea/Pangaea - Land&C.xml')
     print("Statistics before Hordify\n")
     wgmap.printStatistics()
     wgmap.hordify(1, "", "Ocean.*", "Ocean")
     print("\n\nStatistics after Hordify\n")
-    wgmap.saveMapToFile('//BHO/data/wargear development/pangaea/Pangaea - Land&CHordes.xml')
+    wgmap.save_map_to_file('//BHO/data/wargear development/pangaea/Pangaea - Land&CHordes.xml')
 
 
 def testHordify():
     ''' Testing - Hordify '''
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//BHO/data/wargear development/scripts/KnightsTour8x8.xml')
+    wgmap.load_map_from_file('//BHO/data/wargear development/scripts/KnightsTour8x8.xml')
     print("Statistics before Hordify\n")
     wgmap.printStatistics()
     wgmap.hordify(2, "_h", r"new", r"new", True)
@@ -2392,25 +2412,25 @@ def testHordify():
     print("\n\nStatistics after Hordify\n")
     wgmap.hordify(2, "_h", r"new", r"new", True)
 
-    wgmap.saveMapToFile('//BHO/data/wargear development/scripts/SimpleBoardHordes.xml')
+    wgmap.save_map_to_file('//BHO/data/wargear development/scripts/SimpleBoardHordes.xml')
 
 
 def addDnDGridTerritories():
     wgmap = SquareGridWGMap()
-    wgmap.loadMapFromFile('//BHO/data/wargear development/Dungeons & Dragons/Dungeons & Dragons.xml')
+    wgmap.load_map_from_file('//BHO/data/wargear development/Dungeons & Dragons/Dungeons & Dragons.xml')
     wgmap.rows = 24
     wgmap.cols = 41
     wgmap.doWrap = False
     ULCR = (0, 0)
     LRCR = (24, 41)
-    wgmap.createTerritories(1 * 25 + 25 / 2, 7 * 25 + 25 / 2, 25, 25)
+    wgmap.createTerritories(1 * 25 + 25 // 2, 7 * 25 + 25 // 2, 25, 25)
     wgmap.addBordersViaRegex(ULCR, LRCR)
-    wgmap.saveMapToFile('//BHO/data/wargear development/Dungeons & Dragons/Dungeons & Dragons.out.xml')
+    wgmap.save_map_to_file('//BHO/data/wargear development/Dungeons & Dragons/Dungeons & Dragons.out.xml')
 
 
 def addDnDPCBorders():
     wgmap = SquareGridWGMap()
-    wgmap.loadMapFromFile('//BHO/data/wargear development/Dungeons & Dragons/Dungeons & Dragons.xml')
+    wgmap.load_map_from_file('//BHO/data/wargear development/Dungeons & Dragons/Dungeons & Dragons.xml')
     wgmap.rows = 24
     wgmap.cols = 41
     wgmap.doWrap = False
@@ -2520,29 +2540,29 @@ def addDnDPCBorders():
     for rogue1NID in rogue1Neighbors:
         WGMap.addBorder(wgmap, rogue5ID, rogue1NID, "One-way", "Default", "5")
 
-    wgmap.saveMapToFile('//BHO/data/wargear development/Dungeons & Dragons/Dungeons & Dragons.out.xml', False)
+    wgmap.save_map_to_file('//BHO/data/wargear development/Dungeons & Dragons/Dungeons & Dragons.out.xml', False)
 
 
 def addDnDRodContinents():
     wgmap = SquareGridWGMap()
-    wgmap.loadMapFromFile('//BHO/data/wargear development/Dungeons & Dragons/Dungeons & Dragons(5).xml')
+    wgmap.load_map_from_file('//BHO/data/wargear development/Dungeons & Dragons/Dungeons & Dragons(5).xml')
 
     rodIDs = wgmap.getTerritoryIDsFromNameRegex("Rod")
     print("ROD IDs", rodIDs)
     wgmap.addCollectorContinents(rodIDs, 3, 3)
-    wgmap.saveMapToFile('//BHO/data/wargear development/Dungeons & Dragons/Dungeons & Dragons(5).out.xml', False)
+    wgmap.save_map_to_file('//BHO/data/wargear development/Dungeons & Dragons/Dungeons & Dragons(5).out.xml', False)
 
 
 def addQbertViewTerritories():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//BHO/data/wargear development/qbert/qbert.xml')
+    wgmap.load_map_from_file('//BHO/data/wargear development/qbert/qbert.xml')
     wgmap.addBordersViaRegex("Disk", "^[1234567890]*$", "One-way", "View Only")
-    wgmap.saveMapToFile('//BHO/data/wargear development/qbert/qbertOut.xml')
+    wgmap.save_map_to_file('//BHO/data/wargear development/qbert/qbertOut.xml')
 
 
 def addBackForMoreDiceContinents():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//BHO/data/wargear development/Back For More/Back For More.xml')
+    wgmap.load_map_from_file('//BHO/data/wargear development/Back For More/Back For More.xml')
 
     diceTerritoryNames = ["2x", "4x", "8x", "16x", "32x", "64x"]
     diceMultipliers = [1, 3, 7, 15, 31, 63]
@@ -2700,12 +2720,12 @@ def addBackForMoreDiceContinents():
                                                           d5Multiplier, d6Multiplier) * checkerValue
                                 wgmap.addContinent(continentName, continentMembers, continentValue)
 
-    wgmap.saveMapToFile('//BHO/data/wargear development/Back For More/Back For More - Out.xml')
+    wgmap.save_map_to_file('//BHO/data/wargear development/Back For More/Back For More - Out.xml')
 
 
 def addDejeweledContinents():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Dejeweled/Dejeweled.xml')
+    wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Dejeweled/Dejeweled.xml')
     wgmap.deleteAllContinents(False)
 
     columns = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']
@@ -2743,37 +2763,37 @@ def addDejeweledContinents():
             tid = wgmap.getTerritoryIDFromName(c + r)
             wgmap.addContinent(c + r + "_noWin", tid, -1, winnerID, "Universal")
 
-    wgmap.saveMapToFile('//DISKSTATION/data/wargear development/Dejeweled/DejeweledOut.xml', False)
+    wgmap.save_map_to_file('//DISKSTATION/data/wargear development/Dejeweled/DejeweledOut.xml', False)
 
 
 def addSimpleWorldDistantFog():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/simple world/Simple World - Light Fog duel.xml')
+    wgmap.load_map_from_file('//DISKSTATION/data/wargear development/simple world/Simple World - Light Fog duel.xml')
     # wgmap.debug = True
     wgmap.addViewBordersToNeighbors(3)
-    wgmap.saveMapToFile('//DISKSTATION/data/wargear development/simple world/Simple World - Distant Fog duel.xml',
-                        False)
+    wgmap.save_map_to_file('//DISKSTATION/data/wargear development/simple world/Simple World - Distant Fog duel.xml',
+                           False)
 
     # \\DISKSTATION\data\wargear development\test\hillsanddales
 
 
 def addHandDHordes():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/test/hillsanddales/Hills and Dales.xml')
+    wgmap.load_map_from_file('//DISKSTATION/data/wargear development/test/hillsanddales/Hills and Dales.xml')
     # wgmap.debug = True
 
     # wgmap.hordify(1,"","Ocean.*","Ocean")
     wgmap.deleteAllContinents(False)
-    wgmap.hordify("1", "", "\(1\)", "\(1\)")
-    wgmap.hordify("1", "", "\(2\)", "\(2\)")
-    wgmap.hordify("1", "", "\(3\)", "\(3\)")
-    wgmap.hordify("1", "", "\(4\)", "\(4\)")
-    wgmap.saveMapToFile('//DISKSTATION/data/wargear development/test/hillsanddales/out.xml', False)
+    wgmap.hordify(1, "", "\(1\)", "\(1\)")
+    wgmap.hordify(1, "", "\(2\)", "\(2\)")
+    wgmap.hordify(1, "", "\(3\)", "\(3\)")
+    wgmap.hordify(1, "", "\(4\)", "\(4\)")
+    wgmap.save_map_to_file('//DISKSTATION/data/wargear development/test/hillsanddales/out.xml', False)
 
 
 def fixCCJustGems():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/crystal caves/Crystal Caves - Just Gems(3).xml')
+    wgmap.load_map_from_file('//DISKSTATION/data/wargear development/crystal caves/Crystal Caves - Just Gems(3).xml')
     wgmap.debug = True
 
     '''  
@@ -2798,13 +2818,13 @@ def fixCCJustGems():
     Gems = wgmap.getTerritoryIDsFromNameRegex("Purple")
     wgmap.addCollectorContinents(Gems, 1, 1)
 
-    wgmap.saveMapToFile('//DISKSTATION/data/wargear development/crystal caves/Crystal Caves - Just Gems - Out.xml',
-                        False)
+    wgmap.save_map_to_file('//DISKSTATION/data/wargear development/crystal caves/Crystal Caves - Just Gems - Out.xml',
+                           False)
 
 
 def setupLegotaurus():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/legotaurus/Legotaurus.xml')
+    wgmap.load_map_from_file('//DISKSTATION/data/wargear development/legotaurus/Legotaurus.xml')
     wgmap.debug = True
     rows = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u",
             "v", "w", "x", "y", "z", "aa", "bb", "cc", "dd"]
@@ -2867,7 +2887,7 @@ def setupLegotaurus():
         wgmap.addBorder(attack2ID, topID, "One-way", ftattackmod="-6")
         wgmap.addBorder(attack3ID, topID, "One-way", ftattackmod="-6")
         wgmap.addBorder(attack4ID, topID, "One-way", ftattackmod="-6")
-        wgmap.addContinent(topID + "_cleanup", topID, -1, topID)
+        wgmap.addContinent(str(topID) + "_cleanup", topID, -1, topID)
 
     # add borders from capitals to top row
     # and add factories to remove old units from the selectors.
@@ -2890,12 +2910,12 @@ def setupLegotaurus():
             target = wgmap.getTerritoryIDFromName(r + c)
             wgmap.addContinent("Builder-" + r + c, members, factory=target, factoryType="Universal")
 
-    wgmap.saveMapToFile('//DISKSTATION/data/wargear development/legotaurus/Legotaurus-out.xml', False)
+    wgmap.save_map_to_file('//DISKSTATION/data/wargear development/legotaurus/Legotaurus-out.xml', False)
 
 
 def setupTWBB():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/ThereWillBeBlood/There Will Be Blood!(4).xml')
+    wgmap.load_map_from_file('//DISKSTATION/data/wargear development/ThereWillBeBlood/There Will Be Blood!(4).xml')
     wgmap.debug = True
 
     wgmap.hordify(1, "", "Land", "Land")
@@ -2963,12 +2983,12 @@ def setupTWBB():
                            wgmap.getTerritoryIDFromName(oilWell), "Universal")
         territoryIDs.remove(depositID)
 
-    wgmap.saveMapToFile('//DISKSTATION/data/wargear development/ThereWillBeBlood/There Will Be Blood!Out.xml', False)
+    wgmap.save_map_to_file('//DISKSTATION/data/wargear development/ThereWillBeBlood/There Will Be Blood!Out.xml', False)
 
 
 def testWGAME():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/test/hordify test - SelfFactories.xml')
+    wgmap.load_map_from_file('//DISKSTATION/data/wargear development/test/hordify test - SelfFactories.xml')
     baseIDList = []
     baseIDList.append(1)
     baseIDList.append(2)
@@ -2982,12 +3002,12 @@ def testWGAME():
     wgmap.continentsFromNeighbors(baseIDList, bonus, neighborIds=neighborIDList, neighborDistance=_neighborDistance,
                                   continentSuffix=_continentSuffix, factory=_factory, factoryType=_factoryType)
 
-    wgmap.saveMapToFile('//DISKSTATION/data/wargear development/test/hordify test - SelfFactories-out.xml')
+    wgmap.save_map_to_file('//DISKSTATION/data/wargear development/test/hordify test - SelfFactories-out.xml')
 
 
 def setupDFMap():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/darkness falls/Darkness Falls.xml')
+    wgmap.load_map_from_file('//DISKSTATION/data/wargear development/darkness falls/Darkness Falls.xml')
 
     targetList = ["Kill Factory 1", "Kill Factory 2", "Kill Factory 3", "Kill Factory 4", "Kill Factory 5",
                   "Kill Factory 6"]
@@ -3011,14 +3031,14 @@ def setupDFMap():
             tempList = list(memberList)
             tempList.append(wgmap.getTerritoryIDFromName(target))
             name = "KeepAlive-" + wt + "-" + target
-            wgmap.addContinent(name, tempList, "1", wgmap.getTerritoryIDFromName(target), "AutoCapture")
+            wgmap.addContinent(name, tempList, 1, wgmap.getTerritoryIDFromName(target), "AutoCapture")
 
-    wgmap.saveMapToFile('//DISKSTATION/data/wargear development/darkness falls/Darkness Falls-out.xml', False)
+    wgmap.save_map_to_file('//DISKSTATION/data/wargear development/darkness falls/Darkness Falls-out.xml', False)
 
 
 def setupTrivialPursuit():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Trivial Pursuit/Trivial Pursuit(7).xml')
+    wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Trivial Pursuit/Trivial Pursuit(7).xml')
     Players = ["1", "2", "3", "4", "5", "6", "7", "8"]
     Pies = frozenset(["A", "B", "C", "D", "E", "F"])
 
@@ -3132,12 +3152,12 @@ def setupTrivialPursuit():
                 #  targetID = wgmap.getTerritoryIDFromName("Player "+player2 + " Pie "+pie)
                 # wgmap.addBorder(pid,targetID,borderType="View Only")
 
-    wgmap.saveMapToFile('//DISKSTATION/data/wargear development/Trivial Pursuit/Trivial Pursuit-out.xml')
+    wgmap.save_map_to_file('//DISKSTATION/data/wargear development/Trivial Pursuit/Trivial Pursuit-out.xml')
 
 
 def setupLizardEscher():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/ESCHER/Lizard Tesselations - M.C. Escher.xml')
+    wgmap.load_map_from_file('//DISKSTATION/data/wargear development/ESCHER/Lizard Tesselations - M.C. Escher.xml')
     targetIDList = []
     targetIDList.append(wgmap.getTerritoryIDFromName("L1"))
     targetIDList.append(wgmap.getTerritoryIDFromName("L102"))
@@ -3149,12 +3169,12 @@ def setupLizardEscher():
 
     wgmap.addEliminationCombinationContinents(targetIDList, 3, continentSuffix="_Elimination")
 
-    wgmap.saveMapToFile('//DISKSTATION/data/wargear development/ESCHER/Lizard Tesselations - M.C. Escher-out.xml')
+    wgmap.save_map_to_file('//DISKSTATION/data/wargear development/ESCHER/Lizard Tesselations - M.C. Escher-out.xml')
 
 
 def setupDiatoms():
     wgmap = WGMap()
-    wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/diatoms/Diatoms(7).xml')
+    wgmap.load_map_from_file('//DISKSTATION/data/wargear development/diatoms/Diatoms(7).xml')
     triangleTerritories = wgmap.getTerritoryIDsFromNameRegex("^T")
     rhombusTerritories = wgmap.getTerritoryIDsFromNameRegex("^R")
     hexagonTerritories = wgmap.getTerritoryIDsFromNameRegex("^H")
@@ -3169,39 +3189,41 @@ def setupDiatoms():
     # todo: is this the same as getTerritoryIDsByDistance?
     # I think this version has been tested but other has not.
     # return set includes original territoryID
-    def getATWNB(territoryID, nBorders, direction="either", borderTypesAllowed=["Default", "Attack Only"],
+    def getATWNB(territoryID, nBorders, direction="either", border_types_allowed=None,
                  targetRegex=".*"):
 
         # import pdb;
+        if border_types_allowed is None:
+            border_types_allowed = ["Default", "Attack Only"]
         tid = int(territoryID)
         # print"gatwnb called with",tid, nBorders
         borderDepth = 0
         allTerritoriesInReach = set()
         allTerritoriesInReach.add(tid)
         nBorders = int(nBorders)
-        # print "borderDepth:",borderDepth
-        # print "nBorders:",nBorders
-        # print "borderTypesAllowed:",borderTypesAllowed
+        # print("borderDepth:",borderDepth
+        # print("nBorders:",nBorders
+        # print("borderTypesAllowed:",borderTypesAllowed
 
         while (borderDepth < nBorders):
             allTerritoriesAddition = set()
-            # print "len(allTerritoriesAddition)",len(allTerritoriesAddition)
+            # print("len(allTerritoriesAddition)",len(allTerritoriesAddition)
             for tirID in allTerritoriesInReach:
-                tirName = wgmap.getTerritoryNameFromID(tirID)
-                # print "looking at",tirName
+                tirName = wgmap.get_territory_name_from_ID(tirID)
+                # print("looking at",tirName
                 if tirName[0] != "T" and borderDepth > 0:
-                    # print "skipping"
-                    continue;
-                tb = wgmap.getNeighborIDsFromID(tirID, direction, targetRegex, borderTypesAllowed)
+                    # print("skipping"
+                    continue
+                tb = wgmap.getNeighborIDsFromID(tirID, direction, targetRegex, border_types_allowed)
                 # tb = self.getBorderTerritoryIDsByTerritoryID(tirID,direction)
-                # print "for",tirID,"found borders:",tb,"size:",len(tb)
+                # print("for",tirID,"found borders:",tb,"size:",len(tb)
                 # if len(tb) > 8:
                 #    pdb.set_trace()
                 allTerritoriesAddition |= set(tb)
             allTerritoriesInReach |= allTerritoriesAddition
             borderDepth = borderDepth + 1
 
-            # print "atir",allTerritoriesInReach
+            # print("atir",allTerritoriesInReach
 
         # allTerritoriesInReach.discard(tid)
         print("returning", allTerritoriesInReach)
@@ -3227,7 +3249,7 @@ def setupDiatoms():
         # if (None == re.search(baseRegex,t.getAttribute("name"))):
         #  continue
         tid = t.getAttribute("tid")
-        # print "working on tid:",tid
+        # print("working on tid:",tid
 
         wgmap.DOM = originalDOM
         twoDist = getATWNB(tid, nDistance, targetRegex=targetRegex) - getATWNB(tid, 1, targetRegex=targetRegex)
@@ -3237,7 +3259,7 @@ def setupDiatoms():
 
     wgmap.DOM = newDOM
 
-    wgmap.saveMapToFile('//DISKSTATION/data/wargear development/diatoms/Diatoms-out.xml')
+    wgmap.save_map_to_file('//DISKSTATION/data/wargear development/diatoms/Diatoms-out.xml')
 
 
 def loadDirectedGraphFromDOM(wgmap):
@@ -3268,7 +3290,7 @@ def pseudocolor(val, minval, maxval, colorRangeInDegrees=240):
 
 def createWGImageMetric(wgmap, metric, boardImage, outputImage):
     radius = 5
-    # print "metric",metric
+    # print("metric",metric
 
     # get min/maxes
     minval = min(metric.values())
@@ -3293,7 +3315,7 @@ def createWGImageMetric(wgmap, metric, boardImage, outputImage):
         y = int(telem.getAttribute("ypos"))
         xy = (x, y)
         rgb = pseudocolor(value, minval, maxval)
-        # print value,minval, maxval, rgb
+        # print(value,minval, maxval, rgb
         draw.ellipse((x - radius, y - radius, x + radius, y + radius), fill=rgb, outline=rgb)
         # imOut.putpixel(xy, rgb)
 
@@ -3317,13 +3339,13 @@ def createNetworkStatisticsForSeveralMaps():
 
 def createNetworkStatistics(inXML='//DISKSTATION/data/wargear development/Maze/RandomMaze16x16B.xml',
                             boardImage="//DISKSTATION/data/wargear development/Maze/RandomMaze16x16B-Board.png"):
-    # print sys.path
+    # print(sys.path
     wgmap = WGMap()
-    wgmap.loadMapFromFile(inXML)
+    wgmap.load_map_from_file(inXML)
 
     DG = loadDirectedGraphFromDOM(wgmap)
-    # print DG.number_of_nodes()
-    # print DG.number_of_edges()
+    # print(DG.number_of_nodes()
+    # print(DG.number_of_edges()
     metricInfo = [
         ("Degree-Centrality", nx.degree_centrality),
         ("betweenness_centrality", nx.betweenness_centrality),
@@ -3345,7 +3367,7 @@ def createNetworkStatistics(inXML='//DISKSTATION/data/wargear development/Maze/R
     ]
     for metricName, metricF in metricInfo:
 
-        # print metric
+        # print(metric
         outputImage = boardImage[:-3] + metricName + ".png"
         try:
             metric = metricF(DG)
@@ -3412,23 +3434,23 @@ def isTwoSets(cards):
 def testNewWorldConstant():
     inXML = '//DISKSTATION/data/wargear development/TheNewWorld/berickf-TheNewWorld-SmallPox - Ozy Test (1).xml'
 
-    # print sys.path
+    # print(sys.path
     wgmap = WGMap()
-    wgmap.loadMapFromFile(inXML)
+    wgmap.load_map_from_file(inXML)
     continentName = "smallpox"
     territorySet = wgmap.getTerritorySet(continent=continentName)
     print("territorySet: {}".format(territorySet))
     wgmap.addFixedBonusContinents(baseIDSet=territorySet, targetIDSet=territorySet, factoryType="Universal+N",
                                   factoryValue=1, baseName="SmallPox")
-    wgmap.saveMapToFile(
+    wgmap.save_map_to_file(
         '//DISKSTATION/data/wargear development/TheNewWorld/berickf-TheNewWorld-SmallPox - Ozy Test - out.xml')
 
 
 def twoSetsInSixCards():
     cards = ('A', 'B', 'C')
     print(cards)
-    totalCombos = 0;
-    twoSetCombos = 0;
+    totalCombos = 0
+    twoSetCombos = 0
     for sixcards in itertools.product(cards, repeat=6):
         print(sixcards)
         totalCombos += 1
@@ -3437,9 +3459,30 @@ def twoSetsInSixCards():
 
     print(twoSetCombos, totalCombos, float(twoSetCombos) / totalCombos)
 
+# DC Attorney General
+
+def setupJanuary6():
+    wgmap = WGMap()
+    wgmap.load_map_from_file('//DISKSTATION/data/wargear development/January 6, 2021/January 6, 2021(6).xml')
+    wgmap.hordify(1, "", "\[O\]", "\[O\]")
+    wgmap.hordify(2, "", "\[I\]", "\[I\]")
+    wgmap.addViewBordersToNeighbors(3,"\[I\]","\[I\]")
+    wgmap.addViewBordersToNeighbors(3,"\[O\]","\[O\]")
+    wgmap.save_map_to_file(
+        '//DISKSTATION/data/wargear development/January 6, 2021/January6.xml', True)
+
+def setupHexField():
+    wgmap = WGMap()
+    wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Hex Field/Hex Field.xml')
+    wgmap.addViewBordersToNeighbors(2)
+    wgmap.save_map_to_file(
+        '//DISKSTATION/data/wargear development/Hex Field/Hex Field-View.xml', True)
+
 
 if __name__ == '__main__':
-    print('Hello World')
+    #print('Hello World')
+    setupHexField()
+    # setupJanuary6()
     # KnightWGMap.createFunctionCellGame() #.createVerticalStripesKnightsTour() #createRandomKnightTour()
     # KnightWGMap.createStripesGame() #.createVerticalStripesKnightsTour() #createRandomKnightTour()
     # addQbertViewTerritories()
@@ -3449,7 +3492,7 @@ if __name__ == '__main__':
     # createGridGame()
     # createFunctionCellGame()
     # testMazeMap()
-    # print "tst"
+    # print("tst"
     # MazeWGMap.createMazeMaps()
     # bonus = [0,16,20,20,20,20,20,20,20,20,20,20,25,25,25,25]
     # bonus = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]

@@ -185,7 +185,7 @@ class MazeWGMap(SquareGridWGMap):
     if lineOfSight:
       self.addLineOfSightViewBorders()
 
-    self.saveMapToFile(filePath + ".xml")
+    self.save_map_to_file(filePath + ".xml")
     '''
     bc = self.getBorderCounts()
     for BName,BCount in bc.iteritems():
@@ -872,7 +872,7 @@ class MazeWGMap(SquareGridWGMap):
 
 def createHugeMazeMaps():
   wgmap = MazeWGMap()
-  wgmap.loadMapFromFile('//BHO/data/wargear development/Maze/Random Mazes.xml')
+  wgmap.load_map_from_file('//BHO/data/wargear development/Maze/Random Mazes.xml')
   
   size = 30
     
@@ -904,7 +904,7 @@ def createHugeMazeMaps():
   
 def createSimpleMazeMaps():
   wgmap = MazeWGMap()
-  wgmap.loadMapFromFile('//DISKSTATION/data/wargear development/Maze/Random Mazes.xml')
+  wgmap.load_map_from_file('//DISKSTATION/data/wargear development/Maze/Random Mazes.xml')
   wgmap.doWrap = False;
   size = 12
   if (size <= 12):
@@ -927,7 +927,7 @@ def createSimpleMazeMaps():
 def createMazeMaps():
   wgmap = MazeWGMap()
   originalXML='//DISKSTATION/data/wargear development/Maze/Random Mazes(7).xml'
-  wgmap.loadMapFromFile(originalXML)
+  wgmap.load_map_from_file(originalXML)
   print("loading from "+originalXML)
   wgmap.doWrap = False;
   for mazeType in ["LineOfSight",""]:
